@@ -1,0 +1,6 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hell’s Gate — contrôle local de la carte HA</title>
+<style>body{margin:0;padding:20px;background:#f5f5f7;--primary-color:#007aff;--primary-text-color:#1d1d1f;--secondary-text-color:#6e6e73;--card-background-color:#fff;--primary-background-color:#f5f5f7;--divider-color:#e5e5ea;font-family:system-ui}ha-card{display:block}hells-gate-card{display:block;max-width:1200px;margin:auto}ha-icon{display:inline-flex;width:22px;height:22px;align-items:center;justify-content:center}ha-icon:before{content:'◇';font-size:20px}@media(max-width:600px){body{padding:0}}</style>
+<script src="hells-gate-card.js"></script><hells-gate-card></hells-gate-card>
+<script>window.card=document.querySelector('hells-gate-card');window.calls=[];window.shadow=card.shadowRoot;window.fakeHass={states:{},callService:async(domain,service,data)=>{calls.push({domain,service,data});}};</script>
+</html>

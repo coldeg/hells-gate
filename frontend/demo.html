@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hell’s Gate — interactive community preview</title>
+  <style>
+    body { margin:0; background:#f5f5f7; color:#1d1d1f; font-family:system-ui,sans-serif; --primary-color:#007aff; --primary-text-color:#1d1d1f; --secondary-text-color:#6e6e73; --card-background-color:#fff; --primary-background-color:#f5f5f7; --divider-color:#e5e5ea; }
+    .preview { max-width:1140px; margin:20px auto 0; padding:16px 28px; font-size:13px; color:#606066; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .preview p { flex:1; min-width:180px; margin:0; }
+    .preview select,.preview button { font:inherit; min-height:44px; border:1px solid #ddd; border-radius:10px; padding:8px 12px; background:#fff; }
+    hells-gate-card { display:block; max-width:1200px; margin:auto; }
+    @media(max-width:600px) { .preview { padding:12px 14px; margin:0; } }
+  </style>
+</head>
+<body>
+  <div class="preview">
+    <p>This preview uses fictional devices. Every command is simulated locally.</p>
+    <label>Preview language <select id="preview-language"><option value="en-US">English</option><option value="fr-BE">Français</option><option value="nl-BE">Nederlands</option><option value="de-DE">Deutsch</option></select></label>
+    <button id="receive">Simulate a reception</button>
+  </div>
+  <script>
+    // Standalone SVG placeholders stand in for HA's native icon component in this demo.
+    // The installed card uses HA icons directly; no icon library is bundled into production.
+    customElements.define('ha-icon',class extends HTMLElement {
+      connectedCallback() {
+        const name=this.getAttribute('icon')||'';
+        let drawing='<rect x="7" y="3" width="10" height="18" rx="2"/><path d="M10 7h4m-4 4h4"/>';
+        if(name.includes('plus'))drawing='<path d="M12 5v14M5 12h14"/>';
+        else if(name.includes('close'))drawing='<path d="m6 6 12 12M6 18 18 6"/>';
+        else if(name.includes('magnify'))drawing='<circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/>';
+        else if(name.includes('dots'))drawing='<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>';
+        else if(name.includes('tap'))drawing='<path d="M9 12V5a2 2 0 0 1 4 0v7l3-2 4 4-3 7h-7l-6-6a2 2 0 0 1 3-3l2 2"/>';
+        else if(name.includes('light')||name.includes('lamp'))drawing='<path d="M8 15a6 6 0 1 1 8 0l-1 3H9zM9 21h6"/>';
+        else if(name.includes('gate'))drawing='<path d="M3 21V5m18 16V5M3 10h18M3 17h18M8 6v15m8-15v15"/>';
+        else if(name.includes('history'))drawing='<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/>';
+        else if(name.includes('remote'))drawing='<path d="M5 8a10 10 0 0 1 14 0M8 11a6 6 0 0 1 8 0M11 15h2v6h-2z"/>';
+        else if(name.includes('radar'))drawing='<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="m12 12 7-7"/>';
+        this.attachShadow({mode:'open'}).innerHTML='<style>:host{display:inline-flex;width:var(--mdc-icon-size,21px);height:var(--mdc-icon-size,21px)}svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}</style><svg viewBox="0 0 24 24" aria-hidden="true">'+drawing+'</svg>';
+      }
+    });
+  </script>
+  <script src="hells-gate-card.js"></script>
+  <hells-gate-card></hells-gate-card>
+  <script>
+    // This is an in-memory HA adapter, not an MQTT client. It never opens a socket.
+    const now=()=>new Date().toISOString();
+    const areas=[{area_id:'office',name:'Office'},{area_id:'living',name:'Living room'},{area_id:'bedroom',name:'Bedroom'}];
+    const icons={'Interrupteur':'mdi:light-switch','Lampe de bureau':'mdi:desk-lamp','Plafonnier':'mdi:ceiling-light'};
+    const make=(identity,button,area_id,section_id,word)=>({identity,serial:identity.split('_')[0],known:!!button,source:button?'Example switch':'',button,area_id,area:'',position:'',section_id,icon_choice:button==='Desk lamp'?'Lampe de bureau':'Interrupteur',icon:button==='Desk lamp'?'mdi:desk-lamp':'mdi:light-switch',ignored:false,tx_alias:word?'rx_'+word:null,command_state:word?'available':'learning',activation_reason:word?'':'Appuyez sur la touche physique pour terminer la reconnaissance du signal.',last_seen:now(),count:3});
+    const catalogue={schema_version:4,revision:'demo_revision_1',icons,receipts:[],items:[
+      make('012345_0_0','Desk lamp','living','desk','048D1428'),
+      make('012346_0_0','Ceiling light','living','ceiling','048D1828'),
+      make('012347_0_0','','living',null,'048D1C28'),
+      make('012348_0_1','','bedroom',null,null)
+    ],sections:[{id:'desk',name:'Desk lamp',identities:['012345_0_0'],reference:'012345_0_0',tx_alias:'rx_048D1428'},
+      {id:'ceiling',name:'Ceiling light',identities:['012346_0_0'],reference:'012346_0_0',tx_alias:'rx_048D1828'}]};
+    let revision=1;
+    window.demoCalls=[];
+    window.demoCard=document.querySelector('hells-gate-card');
+    demoCard.setConfig({entity:'sensor.demo_catalogue',status_entity:'sensor.demo_gateway',result_entity:'sensor.demo_result'});
+    window.demoHass={locale:{language:'en-US',time_format:'24',date_format:'language',time_zone:'server'},language:'en',config:{time_zone:'Europe/Brussels'},
+      states:{'sensor.demo_catalogue':{state:catalogue.revision,attributes:catalogue},'sensor.demo_gateway':{state:'rx_active',attributes:{tx_enabled:true,last_seen:now(),firmware:'DEMO — no radio',burst_airtime_us:110917}},'sensor.demo_result':{state:'idle',attributes:{}}},
+      callWS:async()=>structuredClone(areas),
+      callService:async(domain,service,data)=>{
+        demoCalls.push({domain,service,data});
+        const request=JSON.parse(data.payload);
+        if(data.topic.includes('/tx/')) {
+          setTimeout(()=>{demoHass.states['sensor.demo_result']={state:'transmitted_unconfirmed',attributes:{client_request:request.request_id,alias:data.topic.split('/')[3],timestamp:now()}};demoCard.hass=demoHass;},200);
+          return;
+        }
+        const item=catalogue.items.find(i=>i.identity===request.identity);
+        let ok=request.revision===catalogue.revision;
+        if(ok&&request.operation==='save') {
+          Object.assign(item,request.fields,{known:true,icon:icons[request.fields.icon]});
+          if(item.section_id==='__new__') {
+            item.section_id='demo_group_'+revision;
+            catalogue.sections.push({id:item.section_id,name:request.fields.section_name,identities:[],reference:item.identity,tx_alias:item.tx_alias});
+          }
+          for(const group of catalogue.sections)group.identities=catalogue.items.filter(i=>i.section_id===group.id).map(i=>i.identity);
+        }
+        if(ok&&request.operation==='prefer') {const group=catalogue.sections.find(s=>s.id===item.section_id);group.reference=item.identity;group.tx_alias=item.tx_alias;}
+        if(ok)catalogue.revision='demo_revision_'+(++revision);
+        catalogue.receipts.push({request_id:request.request_id,identity:item?.identity,ok,code:ok?undefined:'conflict',message:ok?'Fiche enregistrée.':'Le catalogue a changé. Fermez puis rouvrez la fiche avant de réessayer.'});
+        setTimeout(()=>demoCard.hass=demoHass,0);
+      }};
+    window.setDemoLocale=language=>{demoHass.locale={...demoHass.locale,language};demoCard.hass=demoHass;};
+    document.querySelector('#preview-language').addEventListener('change',e=>setDemoLocale(e.target.value));
+    document.querySelector('#receive').addEventListener('click',()=>{const item=catalogue.items[3];item.count++;item.last_seen=now();item.tx_alias='rx_048D2028';item.command_state='available';item.activation_reason='';demoCard.hass=demoHass;});
+    demoCard.hass=demoHass;
+    setInterval(()=>{demoHass.states['sensor.demo_gateway'].attributes.last_seen=now();demoCard.hass=demoHass;},30000);
+  </script>
+</body>
+</html>

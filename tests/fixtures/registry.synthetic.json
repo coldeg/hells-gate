@@ -1,0 +1,82 @@
+{
+  "actions": {
+    "example_group_1": "Example equipment 1",
+    "example_group_2": "Example equipment 2",
+    "example_group_3": "Example equipment 3",
+    "example_group_4": "Example equipment 4"
+  },
+  "physical_buttons": [
+    {
+      "identity": "031001_3_0",
+      "word": "0C400707",
+      "source": "Example source 1",
+      "button": "Example button 1",
+      "action_id": "example_group_1",
+      "tx_alias": "example_command_5",
+      "icon": "mdi:shower"
+    },
+    {
+      "identity": "031001_2_0",
+      "word": "0C40061A",
+      "source": "Example source 1",
+      "button": "Example button 2",
+      "action_id": "example_group_2",
+      "tx_alias": "example_command_4",
+      "icon": "mdi:ceiling-light"
+    },
+    {
+      "identity": "031002_3_0",
+      "word": "0C400B9B",
+      "source": "Example source 2",
+      "button": "Example button 3",
+      "action_id": "example_group_3",
+      "tx_alias": "example_command_3",
+      "icon": "mdi:stairs"
+    },
+    {
+      "identity": "031002_2_0",
+      "word": "0C400A86",
+      "source": "Example source 2",
+      "button": "Example button 4",
+      "action_id": null,
+      "tx_alias": null,
+      "icon": "mdi:light-switch"
+    },
+    {
+      "identity": "031003_1_0",
+      "word": "0C400DD5",
+      "source": "Example source 3",
+      "button": "Example button 3",
+      "action_id": "example_group_3",
+      "tx_alias": "example_command_2",
+      "icon": "mdi:stairs"
+    },
+    {
+      "identity": "031003_1_1",
+      "word": "0C400D5B",
+      "source": "Example source 3",
+      "button": "Example button 5",
+      "action_id": "example_group_4",
+      "tx_alias": "example_command_1",
+      "icon": "mdi:wall-sconce-flat"
+    },
+    {
+      "identity": "031003_0_0",
+      "word": "0C400CC8",
+      "source": "Example source 3",
+      "button": "Example button 6",
+      "action_id": null,
+      "tx_alias": null,
+      "icon": "mdi:light-switch"
+    },
+    {
+      "identity": "031003_0_1",
+      "word": "0C400C46",
+      "source": "Example source 3",
+      "button": "Example button 7",
+      "action_id": null,
+      "tx_alias": null,
+      "icon": "mdi:light-switch"
+    }
+  ]
+}

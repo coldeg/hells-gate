@@ -1,0 +1,10 @@
+{
+  "firmware": "NIKOBUS_HELTEC_EASYWAVE_GATEWAY_V8_7_LEARNED",
+  "burst_airtime_us": 110917,
+  "physical_chips_per_repeat": 66,
+  "hold_chips": 8,
+  "repeats": 3,
+  "radio_calls": 1,
+  "transport_bitrate_bps": 8006,
+  "payload_bytes": 111
+}

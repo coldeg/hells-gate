@@ -1,0 +1,6 @@
+# I replace these placeholders with the actual entity IDs discovered by HA.
+# There is no fixed five-button map to maintain for the current card.
+type: custom:hells-gate-card
+entity: sensor.replace_with_easywave_catalogue
+status_entity: sensor.replace_with_easywave_gateway_status
+result_entity: sensor.replace_with_easywave_tx_result

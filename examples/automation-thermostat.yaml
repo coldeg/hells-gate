@@ -1,0 +1,39 @@
+# Replace all IDs/entities before using this example. Generated from docs/USE_CASES.md.
+alias: Thermostat adjustment from a two-way wall button
+triggers:
+- trigger: mqtt
+  topic: nikobus/easywave/rx/event
+  value_template: '{{ value_json.identity }}'
+  payload: REPLACE_WITH_INCREASE_BUTTON_ID
+  id: increase
+- trigger: mqtt
+  topic: nikobus/easywave/rx/event
+  value_template: '{{ value_json.identity }}'
+  payload: REPLACE_WITH_DECREASE_BUTTON_ID
+  id: decrease
+actions:
+- variables:
+    current: '{{ state_attr(''climate.replace_with_my_thermostat'', ''temperature'')
+      }}'
+    minimum: '{{ state_attr(''climate.replace_with_my_thermostat'', ''min_temp'')
+      }}'
+    maximum: '{{ state_attr(''climate.replace_with_my_thermostat'', ''max_temp'')
+      }}'
+    step: '{{ state_attr(''climate.replace_with_my_thermostat'', ''target_temp_step'')
+      | float(0.5) }}'
+- condition: template
+  value_template: '{{ current is number and minimum is number and maximum is number
+    }}'
+- variables:
+    requested: '{{ current | float + (step | float if trigger.id == ''increase'' else
+      -(step | float)) }}'
+- action: climate.set_temperature
+  target:
+    entity_id: climate.replace_with_my_thermostat
+  data:
+    temperature: '{{ [maximum | float, [minimum | float, requested | float] | max]
+      | min | round(2) }}'
+- delay:
+    milliseconds: 750
+mode: single
+max_exceeded: silent

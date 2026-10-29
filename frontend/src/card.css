@@ -1,0 +1,683 @@
+/* Shared HA theme tokens, layout, touch targets and reduced-motion support. */
+/* Foundation: inherit HA colors and keep the widget independent of the dashboard layout. */
+:host {
+  display:block;
+  --accent:var(--primary-color,#007aff);
+  --ink:var(--primary-text-color,#1d1d1f);
+  --muted:var(--secondary-text-color,#6e6e73);
+  --surface:var(--card-background-color,#fff);
+  --canvas:var(--primary-background-color,#f5f5f7);
+  --line:var(--divider-color,#e5e5ea);
+  color:var(--ink);
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+* {
+  box-sizing:border-box
+}
+ha-card {
+  display:block;
+  padding:30px;
+  background:var(--canvas);
+  border:0;
+  box-shadow:none;
+  border-radius:24px;
+  min-height:520px
+}
+button,input,select,summary {
+  font:inherit
+}
+button {
+  color:inherit;
+  cursor:pointer;
+  border:1px solid var(--line);
+  background:var(--surface);
+  border-radius:12px;
+  min-height:44px;
+  padding:10px 16px;
+  font-size:14px;
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  transition:background .15s,transform .15s
+}
+button:hover {
+  background:color-mix(in srgb,var(--accent) 7%,var(--surface))
+}
+button:active {
+  transform:scale(.98)
+}
+button:disabled {
+  cursor:default;
+  opacity:.5;
+  transform:none
+}
+button.primary {
+  background:var(--accent);
+  border-color:var(--accent);
+  color:var(--text-primary-color,#fff)
+}
+button.quiet {
+  background:transparent;
+  border-color:transparent;
+  color:var(--muted)
+}
+button.icon {
+  padding:10px;
+  flex-shrink:0
+}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible {
+  outline:3px solid var(--accent);
+  outline-offset:3px
+}
+ha-icon {
+  --mdc-icon-size:21px;
+  flex-shrink:0
+}
+h1,h2,h3,p {
+  margin:0
+}
+h1 {
+  font-size:28px;
+  letter-spacing:-1px;
+  font-weight:700
+}
+h2 {
+  font-size:24px;
+  letter-spacing:-.65px
+}
+h3 {
+  font-size:17px;
+  letter-spacing:-.25px
+}
+p {
+  line-height:1.5
+}
+small,.muted {
+  color:var(--muted)
+}
+small {
+  font-size:12px;
+  line-height:1.5
+}
+header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:26px
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:13px
+}
+.brand-icon {
+  display:grid;
+  place-items:center;
+  width:46px;
+  height:46px;
+  border-radius:14px;
+  background:var(--surface);
+  color:var(--accent);
+  border:1px solid var(--line)
+}
+.health {
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:4px
+}
+.health:before {
+  content:'';
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:var(--warning-color,#b87514)
+}
+.health.online:before {
+  background:var(--success-color,#248a3d)
+}
+nav {
+  display:flex;
+  gap:4px;
+  background:color-mix(in srgb,var(--ink) 5%,var(--canvas));
+  padding:5px;
+  border-radius:14px;
+  max-width:490px;
+  margin-bottom:30px
+}
+nav button {
+  flex:1;
+  background:transparent;
+  border:0;
+  color:var(--muted);
+  padding:10px 13px;
+  white-space:nowrap
+}
+nav button[aria-current=page] {
+  background:var(--surface);
+  color:var(--ink);
+  box-shadow:0 1px 4px #0000000d
+}
+.count {
+  font-size:11px;
+  min-width:19px;
+  border-radius:6px;
+  padding:2px 5px;
+  background:color-mix(in srgb,var(--ink) 7%,transparent)
+}
+.intro {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:24px
+}
+.intro p {
+  font-size:14px;
+  color:var(--muted);
+  margin-top:7px
+}
+.tools {
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  margin-bottom:24px
+}
+.search {
+  position:relative;
+  flex:1;
+  max-width:400px
+}
+.search ha-icon {
+  position:absolute;
+  left:13px;
+  top:12px;
+  color:var(--muted)
+}
+.search input {
+  padding-left:42px
+}
+.filters {
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap
+}
+.filters button {
+  font-size:12px;
+  padding:8px 12px;
+  min-height:44px;
+  border-color:transparent;
+  background:transparent;
+  color:var(--muted)
+}
+.filters button[aria-pressed=true] {
+  color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 9%,var(--canvas))
+}
+.room {
+  margin:28px 0 13px;
+  font-size:13px;
+  font-weight:600;
+  color:var(--muted)
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(245px,1fr));
+  gap:16px
+}
+.tile,.panel {
+  border:1px solid var(--line);
+  background:var(--surface);
+  border-radius:18px;
+  padding:20px
+}
+.tile {
+  display:flex;
+  flex-direction:column;
+  min-width:0
+}
+.tile-head {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:18px
+}
+.symbol {
+  display:grid;
+  place-items:center;
+  width:44px;
+  height:44px;
+  border-radius:13px;
+  background:color-mix(in srgb,var(--accent) 8%,var(--surface));
+  color:var(--accent)
+}
+.tile h3 {
+  overflow-wrap:anywhere
+}
+.tile small {
+  display:block;
+  margin-top:5px
+}
+.tile .controls {
+  margin-top:auto;
+  padding-top:20px;
+  display:flex;
+  gap:8px
+}
+.tile .controls>button:first-child {
+  flex:1
+}
+.feedback {
+  font-size:12px;
+  line-height:1.5;
+  color:var(--muted);
+  min-height:0;
+  margin-top:9px
+}
+.feedback:empty {
+  display:none
+}
+.badge {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  font-size:11px;
+  color:var(--muted);
+  padding:4px 7px;
+  border-radius:6px;
+  background:color-mix(in srgb,var(--ink) 5%,transparent)
+}
+.switch-head {
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:16px
+}
+.keys {
+  display:grid;
+  gap:8px
+}
+.key {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:9px
+}
+.key-body {
+  flex:1;
+  min-width:0
+}
+.key-body button {
+  display:block;
+  text-align:left;
+  padding:5px 6px;
+  min-height:44px;
+  width:100%;
+  border:0;
+  background:transparent
+}
+.key-body strong,.key-body small {
+  display:block;
+  overflow-wrap:anywhere
+}
+.key .press-small {
+  width:44px;
+  padding:10px;
+  color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 8%,var(--surface));
+  border:0
+}
+.key .feedback {
+  margin:0 6px 3px
+}
+.row {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:15px 0;
+  border-bottom:1px solid var(--line)
+}
+.row:last-child {
+  border:0
+}
+.row .body {
+  flex:1;
+  min-width:0
+}
+.row strong,.row small {
+  display:block;
+  overflow-wrap:anywhere
+}
+.row .actions {
+  display:flex;
+  gap:6px
+}
+.empty {
+  text-align:center;
+  padding:48px 20px;
+  color:var(--muted);
+  border:1px dashed var(--line);
+  border-radius:18px
+}
+.empty h3 {
+  color:var(--ink);
+  margin-bottom:7px
+}
+.empty button {
+  margin-top:18px
+}
+.footnote {
+  margin-top:24px;
+  font-size:12px;
+  color:var(--muted)
+}
+#message {
+  font-size:13px;
+  line-height:1.5;
+  border-radius:12px;
+  background:color-mix(in srgb,var(--accent) 8%,var(--canvas));
+  padding:12px 16px;
+  margin:0 0 22px
+}
+#message:empty {
+  display:none
+}
+.error {
+  color:var(--error-color,#c2362d)
+}
+.notice {
+  padding:13px 15px;
+  background:color-mix(in srgb,var(--accent) 7%,var(--surface));
+  border-radius:12px;
+  font-size:13px;
+  line-height:1.5;
+  margin:16px 0
+}
+.notice.error {
+  background:color-mix(in srgb,var(--error-color,#c2362d) 7%,var(--surface))
+}
+.sr-only {
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap
+}
+/* A dialog owns a local draft; receptions refresh the catalogue behind it. */
+dialog {
+  color:var(--ink);
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:22px;
+  padding:26px;
+  width:540px;
+  max-width:calc(100vw - 24px);
+  max-height:90dvh;
+  overflow:auto;
+  box-shadow:0 20px 70px #0002
+}
+dialog::backdrop {
+  background:#0005
+}
+dialog .dialog-head {
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:18px
+}
+dialog h2 {
+  font-size:22px
+}
+dialog .dialog-head .quiet {
+  margin:-7px -9px 0 0
+}
+dialog .subtitle {
+  font-size:14px;
+  color:var(--muted);
+  margin-top:7px
+}
+label {
+  display:grid;
+  gap:7px;
+  font-size:13px;
+  font-weight:600;
+  margin:18px 0
+}
+input,select {
+  color:var(--ink);
+  background:var(--surface);
+  border:1px solid var(--line);
+  border-radius:11px;
+  width:100%;
+  min-height:46px;
+  padding:11px 13px;
+  font-size:15px
+}
+label small {
+  font-weight:400
+}
+.footer {
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  margin-top:24px
+}
+.icons {
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px;
+  margin-top:14px
+}
+.icons button {
+  display:grid;
+  justify-items:center;
+  gap:5px;
+  font-size:10px;
+  min-height:65px;
+  padding:8px 3px
+}
+.icons button[aria-pressed=true] {
+  border-color:var(--accent);
+  color:var(--accent)
+}
+details {
+  margin-top:20px;
+  border-top:1px solid var(--line);
+  padding-top:16px;
+  font-size:13px
+}
+summary {
+  cursor:pointer;
+  color:var(--muted);
+  min-height:44px;
+  padding:10px 0
+}
+.pulse {
+  width:60px;
+  height:60px;
+  display:grid;
+  place-items:center;
+  border-radius:50%;
+  margin:8px auto 18px;
+  background:color-mix(in srgb,var(--accent) 10%,var(--surface));
+  color:var(--accent)
+}
+.learning {
+  text-align:center;
+  padding:16px 6px
+}
+.learning p {
+  font-size:14px;
+  color:var(--muted)
+}
+.learning .pulse ha-icon {
+  --mdc-icon-size:28px
+}
+.spinner {
+  width:15px;
+  height:15px;
+  border:2px solid currentColor;
+  border-right-color:transparent;
+  border-radius:50%;
+  animation:spin .7s linear infinite
+}
+.activity-summary {
+  margin-bottom:20px
+}
+.activity-summary h3 {
+  margin-bottom:8px
+}
+.activity-summary p {
+  font-size:14px
+}
+dl {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px
+}
+dt {
+  color:var(--muted)
+}
+dd {
+  margin:0;
+  overflow-wrap:anywhere
+}
+[hidden] {
+  display:none!important
+}
+@keyframes spin {
+  to {
+    transform:rotate(360deg)
+  }
+}
+@media(max-width:600px) {
+  ha-card {
+    padding:20px 14px;
+    border-radius:0
+  }
+  h1 {
+    font-size:24px
+  }
+  .brand {
+    gap:10px
+  }
+  .brand-icon {
+    width:40px;
+    height:40px
+  }
+  header {
+    gap:8px;
+    margin-bottom:22px
+  }
+  header .primary {
+    padding:10px 12px
+  }
+  header .primary ha-icon {
+    display:none
+  }
+  nav {
+    max-width:none;
+    margin-bottom:26px
+  }
+  nav button {
+    font-size:12px;
+    padding:10px 7px;
+    gap:5px
+  }
+  nav ha-icon {
+    --mdc-icon-size:18px
+  }
+  .intro h2 {
+    font-size:22px
+  }
+  .grid {
+    grid-template-columns:1fr
+  }
+  .tile {
+    padding:18px
+  }
+  .tools {
+    gap:10px
+  }
+  .search {
+    max-width:none;
+    flex-basis:100%
+  }
+  .row {
+    gap:8px
+  }
+  .row>ha-icon {
+    display:none
+  }
+  .row .actions button {
+    padding:10px
+  }
+  .row .actions {
+    flex-wrap:wrap;
+    justify-content:flex-end
+  }
+  .icons {
+    grid-template-columns:repeat(3,minmax(0,1fr))
+  }
+  dialog {
+    padding:20px;
+    max-height:88dvh
+  }
+  .footer button {
+    flex:1
+  }
+  .panel {
+    padding:17px
+  }
+  dl {
+    grid-template-columns:1fr
+  }
+  dd {
+    margin-bottom:8px
+  }
+}
+:host {
+  --action:color-mix(in srgb,var(--accent) 78%,#000)
+}
+button.primary {
+  background:var(--action);
+  border-color:var(--action);
+  color:#fff
+}
+.filters button[aria-pressed=true] {
+  color:var(--action)
+}
+.key .press-small {
+  width:auto;
+  font-size:12px;
+  padding:10px;
+  min-width:44px;
+  color:var(--action)
+}
+.press-small .action-label {
+  font-size:12px
+}
+@media(prefers-reduced-motion:reduce) {
+  *,*::before,*::after {
+    animation:none!important;
+    transition:none!important
+  }
+}
+/* Compact navigation retains all three text labels on the narrowest phones. */
+@media(max-width:360px) {
+  nav ha-icon { display:none; }
+}

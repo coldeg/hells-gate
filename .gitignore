@@ -1,0 +1,9 @@
+.pio/
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+builds/
+frontend/*verification.json
+frontend/*_checked.png
+.env*

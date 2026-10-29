@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "documents": 20,
+  "local_links": 78,
+  "automation_examples": 2,
+  "setpoint_vectors": 4,
+  "missing_setpoint_rejected": true,
+  "ha_calls": 0
+}

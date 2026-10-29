@@ -1,0 +1,25 @@
+# Replace all IDs/entities before using this example. Generated from docs/USE_CASES.md.
+alias: Laundry supplies from two wall buttons
+description: Map received button identities to items in a local HA shopping list.
+triggers:
+- trigger: mqtt
+  topic: nikobus/easywave/rx/event
+  value_template: '{{ value_json.identity }}'
+  payload: REPLACE_WITH_BUTTON_1_ID
+  id: detergent
+- trigger: mqtt
+  topic: nikobus/easywave/rx/event
+  value_template: '{{ value_json.identity }}'
+  payload: REPLACE_WITH_BUTTON_2_ID
+  id: softener
+actions:
+- action: todo.add_item
+  target:
+    entity_id: todo.replace_with_my_shopping_list
+  data:
+    item: '{{ ''Laundry detergent'' if trigger.id == ''detergent'' else ''Fabric softener''
+      }}'
+- delay:
+    milliseconds: 750
+mode: single
+max_exceeded: silent

@@ -1,0 +1,20 @@
+{
+  "figure_kind": "synthetic explanatory models; not RF measurements",
+  "synthetic_word": "048D14F9",
+  "captured_tail_chosen_for_illustration": 0,
+  "transport_bitrate_bps": 8006,
+  "physical_chip_rate_hz": 2001.5,
+  "data_bitrate_bps": 1000.75,
+  "samples_per_chip": 4,
+  "payload_bytes": 111,
+  "burst_airtime_us": 110917,
+  "configured_center_mhz": 868.314,
+  "configured_deviation_khz": 43.8,
+  "files": [
+    "manchester-transport",
+    "continuous-burst",
+    "fsk-model",
+    "captured-tail",
+    "pipeline-overview"
+  ]
+}
