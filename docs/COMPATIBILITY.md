@@ -1,7 +1,6 @@
 # Verified hardware and protocol scope
 
-The confirmed receiving interface is **Niko 05-300**, identified by the owner on
-29 October 2026. It connects compatible wireless transmitters to an existing
+The confirmed receiving interface is **Niko 05-300**. It connects compatible wireless transmitters to an existing
 Nikobus installation. Niko's [05-300 product description](https://products.niko.eu/en/article/05-300)
 and [French technical description](https://products.niko.eu/fr-fr/article/05-300)
 describe reception at 868.3 MHz and conversion into Nikobus telegrams.
