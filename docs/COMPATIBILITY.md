@@ -1,17 +1,17 @@
 # Verified hardware and protocol scope
 
-The confirmed receiving interface is **Niko 05-300**. It connects compatible wireless transmitters to an existing
+The tested receiving interface is the Niko 05-300. It connects compatible wireless transmitters to an existing
 Nikobus installation. Niko's [05-300 product description](https://products.niko.eu/en/article/05-300)
 and [French technical description](https://products.niko.eu/fr-fr/article/05-300)
 describe reception at 868.3 MHz and conversion into Nikobus telegrams.
 
 ## What was reproduced
 
-The HA-side radio is a general-purpose Heltec ESP32-S3/SX1262 board running this
-project's firmware. No dedicated Easywave USB transceiver or vendor RF gateway is
-required there. The protocol remains Easywave; the existing 05-300 is the receiving
-interface into Nikobus. For HA actions targeting other integrated equipment,
-neither a 05-300 nor a Nikobus cabinet module is required for that target.
+On the HA side, a general-purpose Heltec ESP32-S3/SX1262 board runs the open-source
+radio firmware. This provides an alternative to a dedicated Easywave transceiver
+or vendor RF gateway, with lower hardware cost as a goal. The existing 05-300
+still receives commands for Nikobus. For button events used only by another HA
+integration, neither the 05-300 nor a Nikobus cabinet is needed.
 
 | Layer | Established scope |
 |---|---|
@@ -20,12 +20,12 @@ neither a 05-300 nor a Nikobus cabinet module is required for that target.
 | Radio implementation | Binary FSK with Manchester coding on Heltec WiFi LoRa 32 V3 / SX1262. Current configured carrier: 868.314 MHz; no LoRa modulation. |
 | Reconstructed frame | A 32-bit identity/integrity prefix plus the actually observed final data bit; three continuous repetitions in a bounded burst. |
 | Receiving path | Compatible reproduced RF command → Niko 05-300 → existing Nikobus mapping → physical load. |
-| Physical validation | Several owner-controlled circuits responded to reproduced commands; one load remained unresolved. No universal receiver compatibility is asserted. |
+| Physical validation | The owner reports that about 99% of button commands respond as expected in the original installation. Other receivers require compatibility testing. |
 | Feedback | This implemented radio path does not natively provide independently confirmed Nikobus output state to HA. |
 
-This is reproduction of the **Easywave RF input to Nikobus**, rather than a native
-wired Nikobus transceiver or a complete implementation of all Nikobus products.
-The receiver's existing programming determines what a particular input does.
+Commands enter Nikobus through its Easywave RF interface. The firmware does not
+send native wired-bus telegrams. The receiver's existing programming determines
+what a particular button command does.
 
 ## Other product families
 

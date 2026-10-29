@@ -1,175 +1,119 @@
-# RF replay, trust boundaries and critical devices
+# RF replay and security
 
-**Demonstrated: a command originating from an existing Easywave/Nikobus wall button can
-be captured and retransmitted by this system, operating associated Nikobus circuits on
-the owner's installation.** Any command learned in the supported replayable frame family
-must therefore be treated as potentially reusable by an unauthorized third party with
-compatible radio equipment.
+Captured Easywave button commands were retransmitted by Hell's Gate and operated
+Nikobus circuits in the owner's installation. A compatible independent transmitter
+could reuse commands from the studied frame family against a receiver that
+accepts them. The target home needs no Home Assistant, MQTT or Internet connection:
+the original receiver handles the reproduced RF command directly.
 
-**The targeted installation does not need Home Assistant, MQTT, Hell’s Gate or an
-Internet connection.** The original compatible RF receiver accepts the reproduced button
-command and passes it into the existing installation. An independent transmitter can
-exercise that path without accessing the household's software or owning its original
-button. HA is one integration layer used by this project; it is not a prerequisite for
-the affected receiver to respond.
+The tests covered the owner's equipment and the legacy traffic described in
+[compatibility](COMPATIBILITY.md). No garage door, access-control device or
+third-party installation was tested. The misuse examples below describe possible
+consequences of replay, not attacks carried out by this project.
 
-The replay capability and physical operation of several owner-controlled circuits were
-demonstrated. The scope is the **traffic and receiver behavior studied here**; it does
-not establish that every product sold under the Easywave name accepts the same frames.
-No garage door, access-control device or third-party installation was replay-tested in
-this work. Specific abuse scenarios below are inferred consequences of that demonstrated
-capability, rather than attacks carried out by this project.
+## Earlier work and incident reports
 
-## Historical use, earlier work and incident evidence
+Easywave has a long history of legitimate use. Earlier HA projects include
+[Easywave2MQTT, announced in January 2022](https://community.home-assistant.io/t/new-add-on-to-add-support-for-easywave-devices/385609),
+using an RX09, and [Nikobus-HA](https://github.com/fdebrus/Nikobus-HA), using a bus
+interface. Their existence does not establish that they performed the same
+Heltec frame reconstruction or tested the same replay behavior.
 
-Easywave has a long history of legitimate use. Public HA interoperability work
-also predates this project: the author of
-[Easywave2MQTT announced RX09-based reception and transmission in January 2022](https://community.home-assistant.io/t/new-add-on-to-add-support-for-easywave-devices/385609).
-[Nikobus-HA](https://github.com/fdebrus/Nikobus-HA) documents another, bus-interface
-integration path. These are earlier integration projects, not evidence that they
-performed this same Heltec RF reconstruction or enabled the same identity replay.
+Hell's Gate handles the studied RF commands on a general-purpose ESP32/SX1262
+board with open-source firmware. This provides an alternative to a dedicated
+Easywave transceiver on the HA side. It also means that this radio capability
+is not confined to vendor interfaces.
 
-Hell’s Gate implements the studied RF reception and reconstruction directly on a
-general-purpose ESP32/SX1262 board, without a dedicated Easywave transceiver on
-the HA side. This makes hardware independence part of both the interoperability
-benefit and the threat model: replay capability is not confined to vendor devices.
+The limited public-source search for these notes found no verified malicious
+campaign against the specific Niko 05-300 path. The owner is not aware of one
+either. Neither observation establishes how often abuse occurs or rules it out.
 
-The bounded public-source review for this documentation did not identify a verified
-report of a malicious campaign against the specific Niko 05-300 path studied here.
-That finding does not establish that no abuse has occurred or that every relevant
-publication was found.
-The owner is not aware of malicious use; that is an observation, not a security
-guarantee or an estimate of attack prevalence.
+## Radio hardware and range
 
-The physical replay demonstration establishes a capability. Its existence should
-be documented without presenting hypothetical nuisance scenarios as past incidents
-or suggesting that every existing installation is currently being attacked.
+The tested receiver is the Niko 05-300. The Heltec board uses binary FSK near
+868 MHz; its LoRa product name does not describe the modulation used here.
 
-## FSK at 868 MHz, not LoRa
+RF can travel beyond a room or property boundary. Interception range depends on
+power, antennas, receiver sensitivity and surroundings. No maximum range has
+been measured for this project. ELDAT quotes a typical 150 m open-field range for
+its [RTS03](https://www.eldat.de/produkte/sender/rts03eC01_de.html); that is a product
+specification, not a measurement of this Heltec setup.
 
-The owner confirmed the **Niko 05-300 Nikobus RF interface** as the receiving path.
-See [verified compatibility](COMPATIBILITY.md) for the studied legacy Easywave
-scope and the distinction from wired Nikobus, Home Control, neo and secwave.
+An observable or documented protocol can still authenticate commands and reject
+replay. Here, the relevant finding is that a captured command was accepted again.
 
-The board contains an SX1262, but this project uses binary **FSK**, around the
-configured 868 MHz carrier, rather than LoRa modulation. A radio signal is not confined
-to a room or property boundary simply because HA runs on a private LAN.
+## What the checks protect
 
-Interception range depends on power, antennas, receiver sensitivity, surroundings and
-obstacles. The project has not measured a maximum interception range. For context,
-ELDAT's [RTS03 specifications](https://www.eldat.de/produkte/sender/rts03eC01_de.html)
-quote a typical open-field range of 150 m for that product; that is not a range
-measurement or guarantee for this Heltec installation.
-
-Observability is not the same as insecurity: an openly documented protocol can still be
-secure. The relevant questions are whether a command is authenticated, whether freshness
-is verified and whether an old valid command remains acceptable.
-
-## What the observed frame does and does not prove
-
-| Mechanism | Purpose here | Security boundary it does not establish |
+| Mechanism | Purpose here | Limit |
 |---|---|---|
-| Manchester coding | Recover logical data from transitions. | Encryption or sender authentication. |
-| CRC/integrity class | Reject inconsistent or unrecognized structures. | A cryptographic message-authentication code. |
-| Transmitter identity | Associate a command with a learned sender/button. | A secret credential that cannot be observed and repeated. |
-| Captured tail / concordant copies | Preserve the complete observed frame. | Freshness or replay protection. |
-| INSTALL_TX checks | Prevent this firmware from preparing an unobserved arbitrary learned frame. | Preventing another radio from transmitting independently. |
-| Serial nonce | Correlate and bound the host/firmware one-shot exchange. | An authenticated nonce in the legacy over-the-air frame. |
-| Browser request ID | Match a result and suppress recent duplicate UI requests. | A secret, signature or authorization token. |
-| Non-retained PRESS | Avoid accidental replay after MQTT reconnect. | Protection against a deliberate radio replay or a compromised authorized publisher. |
-| Airtime/rate limits | Bound operation through this bridge and firmware. | A limit imposed on an independent nearby transmitter. |
+| Manchester coding | Recover data from transitions. | Provides no encryption or authentication. |
+| CRC/integrity class | Reject inconsistent or unrecognized structures. | Is not a cryptographic authentication code. |
+| Transmitter identity | Associate traffic with a learned sender/button. | Can be observed and repeated. |
+| Captured tail and matching copies | Preserve the complete received frame. | Do not establish freshness. |
+| `INSTALL_TX` checks | Require observed evidence for new learned commands in this firmware. | Cannot restrict another radio. |
+| Serial nonce | Match and bound a one-shot host/firmware exchange. | Is not added as authentication to the legacy RF frame. |
+| Browser request ID | Match results and suppress recent duplicate UI requests. | Is not an authorization credential. |
+| Non-retained `PRESS` | Prevent reconnecting MQTT clients from replaying retained commands. | Cannot stop deliberate RF replay or a compromised publisher. |
+| Airtime/rate limits | Bound this bridge and firmware's transmissions. | Do not apply to independent transmitters. |
 
-The supported workflow does not add encryption or cryptographic anti-replay to the
-legacy receiver. A better HA password, MQTT ACL or serial nonce protects its own hop; it
-cannot change what that receiver accepts over the air.
+HA authentication, broker ACLs and serial request checks protect their respective
+parts of this system. They cannot change the legacy receiver's RF acceptance.
 
-## Repeated nuisance and unauthorized control are serious impacts
+## Possible effects of replay
 
-Consider a nearby person recording a household's compatible button traffic, then using
-an independently programmed radio to repeat those commands at night. If the installed
-receiver still accepts them, that person could repeatedly operate bedroom lighting
-without a key, HA account, Wi-Fi access or access to the original transmitter. A
-Heltec-class board is one possible platform, not a prerequisite. The person need not
-remain present if a transmitter is left within effective range.
+A nearby transmitter could repeat a learned lighting command at night, disturbing
+sleep or wasting energy. A toggle may alternate an unknown state rather than
+reliably mean ON; repeated operation can still cause disruption. A transmitter
+left within effective range would not require its operator to remain nearby.
+These are plausible scenarios, not reported incidents from this project.
 
-This is a plausible misuse scenario inferred from the demonstrated replay capability,
-**not a reported incident or a test against a neighboring home**. Exact reach, affected
-equipment and the resulting operation need model-specific evidence. A toggle frame may
-invert an unknown state rather than reliably mean "turn on"; that uncertainty does not
-prevent repeated disruption.
+The effect depends on the receiver's actual mappings: a button may control lights,
+blinds, heating or other equipment. With no independent output feedback, HA may
+not show the physical state caused by an unwanted command.
 
-Repeated lighting operation can disturb sleep, cause distress, waste energy and
-undermine trust in a home. Other mapped commands may operate blinds, heating or access
-equipment. Assess the effect of each configured output; "only a light" is not a
-sufficient reason to dismiss unauthorized repeated control. With no independent output
-feedback, HA may also fail to show the resulting physical state.
+The same RF input can trigger HA automations. Treat a received button identity as
+input, not proof that an authorized person requested the action. Purchases, door
+unlocking, alarm changes and safety-critical settings need independent
+authorization. The shopping-list examples only add an item.
 
-The same concern applies to HA automations triggered by received RF: a repeated accepted
-button event can trigger a third-party device or workflow. Moving the target outside
-Nikobus does not make the original RF event authenticated. An RF button alone should not
-authorize a purchase, unlock a door, disable an alarm or change a safety-critical
-setting. Additional independent authorization belongs at the action boundary. The
-shopping-list examples add an item; they do not place orders.
+## Reducing exposure
 
-## Publication and dual use
+Check which receivers accept this frame family and what their paired commands
+control, including downstream HA actions. HA logs alone do not show every command
+received directly by a legacy RF interface.
 
-Public source, protocol notes and commodity hardware can reduce the effort needed to
-reproduce or adapt this capability, including for abuse. This project is useful for
-interoperability and modernization, but its implementation can be modified; software
-checks in this repository do not constrain someone else's transmitter. An acceptable-use
-statement or a license is not a technical RF protection.
+Where that exposure is unacceptable, the affected RF path needs to be disabled
+using the equipment's supported procedure or replaced with a path whose command
+authentication and replay resistance have been verified. Such installation work
+requires the owner's agreement and appropriate expertise.
 
-The receiver's acceptance of replayed commands is the underlying issue. Withholding
-household-specific captures is necessary for privacy and reduces direct exposure, but
-does not repair that issue or guarantee that someone else cannot discover it. Before
-publishing a source export, review actionable installation data, describe the known
-evidence and limitations, and arrange private reporting of new device-specific findings.
-Do not claim that documentation or source sanitization makes the legacy radio secure.
-See [PUBLICATION.md](PUBLICATION.md).
+For HA actions, independent authorization, schedules or rate limits can reduce
+particular consequences. State/power sensing and anomaly alerts can help detect
+unexpected operation. Neither prevents an independent transmitter from commanding
+a legacy receiver, and automatic corrective transmissions are not a security fix.
 
-## What can reduce the risk
+Stopping HA, disabling Hell's Gate TX, changing MQTT credentials or deleting a
+learned entry will not stop replay at a receiver that still accepts the command.
+Re-pairing alone is also insufficient if the new traffic remains replayable.
 
-- Inventory which receivers accept this RF family and what each paired command
-  actually controls, including downstream HA automations. Do not infer safety from
-  a brand name or from an absence of suspicious HA logs.
-- Where the consequences are unacceptable, disable or remove the affected legacy
-  RF control path using the equipment's supported procedure, or migrate that path
-  to a design with verified command authentication and replay resistance. This is
-  an installation change requiring owner approval and appropriate expertise.
-- Keep independent authorization for consequential HA actions. Rate limits,
-  schedules and confirmation can reduce particular automation impacts; they cannot
-  stop an attacker commanding a legacy receiver directly.
-- Treat independent state/power sensing and anomaly alerts as detection aids.
-  They do not authenticate RF commands, guarantee detection or prevent the first
-  unwanted action. Automatic corrective transmissions are not a security fix.
+## Access controls and other critical outputs
 
-Turning off Hell's Gate TX, stopping HA, changing an MQTT password or deleting a learned
-command **does not stop an independent RF replay against a receiver that still accepts
-that command**. Re-pairing alone is not a durable solution if the new traffic remains
-observable and replayable. No receiver migration, RF test or new protective automation
-has been performed as part of writing this chapter.
+Some Easywave-compatible products serve access-related uses. For example, ELDAT's
+[RCL03 description](https://www.eldat.de/produkte/empfaenger/rcl03eB10_en.html)
+mentions retrofitting a garage-door opener. That does not establish whether a
+particular installation uses the frame variant tested here.
 
-## Garage doors, gates and other critical outputs
+Check the exact receiver, configured function and authorization path before
+using it for a critical output. Keep the device's independent interlocks and
+physical protections. A replayable command should not be the sole authorization
+for access.
 
-Easywave-compatible receivers do exist for access-related retrofits. ELDAT's [RCL03
-description](https://www.eldat.de/produkte/empfaenger/rcl03eB10_en.html) explicitly
-mentions adding a wireless interface to a garage-door opener. That establishes the
-relevance of the use case, not that every such installation uses the same frame variant
-or has been assessed by this project.
+Other product families need separate assessment. ELDAT documents
+[secwave](https://www.eldat.de/secwave_en.html) with AES-128 and a telegram
+structure incompatible with Easywave. This decoder does not support it.
+Encryption, authentication and replay resistance are separate properties to check.
 
-Where an output controls access or another critical function, do not treat an
-unverified, replayable fixed-code RF command as the sole trusted authorization boundary.
-Evaluate the exact receiver, its configured function and the full authorization path.
-Preserve the original device's independent interlocks and physical protections; HA
-automations are not a substitute for them.
-
-Dedicated security-oriented product families must be evaluated separately. ELDAT
-documents [secwave](https://www.eldat.de/secwave_en.html) with AES-128 encryption and a
-telegram structure incompatible with Easywave. That does not establish compatibility
-with this decoder. Encryption, authentication and replay resistance also need to be
-checked as separate properties rather than inferred from a brand.
-
-## Trust boundaries beyond RF
+## HA, MQTT and host access
 
 ```mermaid
 flowchart LR
@@ -182,38 +126,40 @@ flowchart LR
     Firmware --> Receiver
 ```
 
-- Restrict MQTT publication and subscriptions to the necessary clients/topics;
-  avoid anonymous access. Protect the broker's network exposure and credentials.
-- Keep HA authentication, user permissions and remote access appropriately scoped.
-  For this local deployment, remote access belongs behind a controlled private VPN,
-  not an exposed unauthenticated dashboard or MQTT listener.
-- Keep serial and firmware-provisioning access limited to trusted local processes.
-  The bridge expects a trusted serial endpoint, not an authenticated network protocol.
-- Do not store credentials, private command dictionaries or household data in
-  `/config/www`; local frontend resources are downloadable by clients that can
-  reach HA. The card receives private runtime data through authenticated HA state.
-- Treat unexpected RF traffic as input to validate and bound. Candidate/resource
-  handling and denial-of-service resilience remain useful review targets.
+- Restrict MQTT clients to the topics they need. Disable anonymous access and
+  protect broker credentials and network access.
+- Use appropriate HA authentication and permissions. For remote access to this
+  local setup, use a controlled private VPN.
+- Limit serial access and firmware provisioning to trusted local processes.
+  The bridge assumes a trusted serial endpoint.
+- Keep credentials and household command data out of `/config/www`. Frontend
+  files can be downloaded by clients that reach HA; private runtime state comes
+  through authenticated HA access.
+- Validate and bound unexpected RF input. Candidate-storage exhaustion and
+  denial-of-service behavior still need adversarial review.
 
-These measures reduce exposure of the HA/MQTT/host path. They do not eliminate the
-independent RF path in the diagram.
+These measures protect the software and host path shown in the diagram. The
+independent RF path remains.
 
-## Public data and responsible research
+## Source publication and private data
 
-Raw captures, transmitter identities, exact installed command words, locations,
-dashboard exports and flash/NVS backups can disclose operating information. The
-private development workspace retains historical command fixtures, which are excluded here; the [publication
-review](PUBLICATION.md) must cover those before a public source export. Synthetic
-figures and fictional screenshots avoid exposing them in the public docs.
+Public code and commodity hardware make this work easier to inspect and reuse,
+including for purposes outside the project's intended use. License terms and
+checks in this firmware cannot constrain someone else's transmitter.
 
-Only perform physical security testing on owned equipment or with permission. Report
-findings with the exact model/build and distinguish an observed result from an inferred
-risk. Do not post another household's actionable RF data in a public issue. See the
+The export excludes household captures, identities, command words, locations,
+dashboards and flash/NVS backups. Synthetic figures and fictional screenshots
+are used instead. Keeping those records private avoids exposing a ready-made
+household command set, but does not repair replay acceptance at the receiver.
+See [the source export scope](PUBLICATION.md).
+
+Test only on owned equipment or with permission. Reports should identify the
+model/build and separate observed results from possible effects. Keep actionable
+household RF data out of public issues and follow the
 [security-reporting policy](../SECURITY.md).
 
-## State feedback is a separate limitation
+## Output-state feedback
 
-Explicit ON/OFF commands improve intent but do not authenticate the sender and do not
-prove a load changed state. Virtual transmitters and scenes do not create either
-anti-replay or output feedback. Requested, estimated and independently confirmed state
-must remain distinguishable.
+Explicit ON/OFF commands, scenes and future virtual transmitters still need a
+separate source to confirm output state. They also retain the receiver's RF
+authentication limits. Keep requested state, estimates and measured state distinct.

@@ -1,50 +1,44 @@
-# Hell’s Gate — using recognized buttons
+# Using recognized buttons
 
-The interaction rule is **recognized = actionable**. A name, room, display group or
-physical effect confirmation does not unlock a command. Global gateway availability and
-RF limits still apply. Reproducing a newly learned frame requires complete received
-evidence.
+A recognized button is ready to use. You can add a name, room or group later.
+Sending still requires an available gateway, global TX enabled and enough RF
+budget. A new learned command also needs a complete received frame.
 
 ## Interface
 
-- **Controls** shows one card per equipment group and independent usable buttons.
-- **My buttons** lets you name a button, choose its HA room and optionally group it.
-- **Add** shows presses received during the current session without silently choosing
-  an unrelated historical candidate.
-- **Activity** separates received observations from radio results and diagnostics.
+**Controls** shows equipment groups and usable buttons. **My buttons** lets you
+name them, assign an HA room and group them. **Add** shows receptions from the
+current learning session. **Activity** lists receptions, radio results and
+diagnostics separately.
 
-Use **Recognize** for an incomplete historical observation and press the physical switch
-again. For a complete learned frame the bridge prepares storage when you actually press
-the command, without a separate activation screen. A successful radio result does not
-establish the lamp's on/off state.
+For an incomplete observation, choose **Recognize** and press the physical switch
+again. Once a complete frame is available, the bridge prepares learned storage
+when you press the command; there is no separate activation screen. A "command
+sent" result reports transmission, not the lamp's actual on/off state.
 
 ## Language and locale
 
-The card follows the current HA user's profile language and regional formatting. Bundled
-languages are English, French, Dutch and German, with regional-tag resolution and
-English fallback. User names and stable identifiers stay unchanged. Changing the profile
-language does not discard an open form or restart a learning session.
+The card follows the HA user's language and regional settings. English, French,
+Dutch and German are included, with regional-tag matching and English fallback.
+User names and stored identifiers stay unchanged. Switching language preserves
+an open form or learning session.
 
 ## Other Home Assistant actions
 
-Use a received button with no Easywave/Nikobus receiver assignment to trigger a native
-HA automation for another target integration. See the laundry supplies pair, thermostat
-up/down and other examples in [USE_CASES.md](docs/USE_CASES.md). This does not require a
-full Nikobus electrical cabinet for that HA event-to-action path. It still requires a
-compatible receiver path for the input protocol and a working HA integration for the
-target; this gateway does not decode every brand's protocol.
+A compatible button can trigger an HA automation without being assigned to an
+Easywave receiver or Nikobus output. The target uses its own HA integration;
+no Nikobus cabinet is needed for that use. See the
+[shopping-list and thermostat examples](docs/USE_CASES.md).
+
+Received identities can be replayed. Read the [security notes](docs/SECURITY.md)
+before assigning actions that need authorization.
 
 ## Documentation and checks
 
-Read the [security chapter](docs/SECURITY.md): replayable radio commands can enable
-unauthorized control independently of HA, including repeated nuisance. A received button
-identity is not sufficient authorization for a consequential HA action.
-
-Start with the [English README](README.md), then follow the [installation
-guide](docs/INSTALLATION.md), [architecture](docs/ARCHITECTURE.md), [modulation
-figures](docs/MODULATION.md), [message contracts](docs/PROTOCOL.md) and [contribution
-guide](CONTRIBUTING.md). Historical experiments and current limitations are documented
-separately from the installation procedure.
+Start with the [README](README.md) and [installation guide](docs/INSTALLATION.md).
+The [architecture](docs/ARCHITECTURE.md), [modulation notes](docs/MODULATION.md)
+and [message reference](docs/PROTOCOL.md) describe the implementation.
+Development commands are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ```sh
 python tools/build_frontend.py --check
@@ -54,7 +48,6 @@ python tools/check_i18n.py
 python tools/generate_community_figures.py
 ```
 
-The browser checks use mocked actions or block services. They do not flash a board,
-place an order, modify a thermostat or transmit RF. The project uses the MIT license,
-with the [publication boundary](docs/PUBLICATION.md) kept explicit: documentation
-preparation is not publication of the private working tree.
+These checks use mocked or blocked actions. They do not flash hardware, transmit
+RF or execute the example automations. The MIT-licensed public export excludes
+private installation data; see [what is included](docs/PUBLICATION.md).

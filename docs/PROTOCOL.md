@@ -1,9 +1,8 @@
 # MQTT and serial protocol reference
 
-The MQTT prefix is `nikobus/easywave`. The UI and bridge exchange JSON and stable IDs;
-the bridge and firmware exchange newline-terminated serial records at 115200 baud.
-Examples here contain placeholders or synthetic data, not a household command to paste
-into a live transmitter.
+MQTT topics use the `nikobus/easywave` prefix. The card and bridge exchange JSON
+with stable IDs; serial records between the bridge and firmware end with a newline
+and use 115200 baud. Examples use placeholders and synthetic data.
 
 ## MQTT topics
 
@@ -42,7 +41,7 @@ The result includes the alias, result timestamp, `client_request` from the brows
 the serial `request` nonce when one was used. The current success label is
 `transmitted_unconfirmed`; it does not establish a lamp state.
 
-## An atomic naming request
+## Saving button metadata
 
 ```json
 {
@@ -104,5 +103,5 @@ For reception-driven automation, start with a harmless notification or log actio
 retained-state replay and possible self-reception before adding an action. Do not
 forward every received frame back to the TX topic: that can form a feedback loop.
 
-The current project does not supply inferred HA light on/off entities or a complete
-generic automation editor. Those require a separate state/behavior design.
+Use native HA automations to configure other actions. The card provides button
+controls, not a general automation editor or stateful HA light entities.

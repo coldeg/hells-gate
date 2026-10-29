@@ -1,12 +1,12 @@
 # Connecting Nikobus to a wider Home Assistant smart home
 
-Hell’s Gate provides a local interoperability bridge for an installation previously
-isolated from this HA setup. The implemented radio path receives and reproduces observed
-**Easywave** signals interpreted by a compatible Nikobus RF interface. Other Nikobus
-integration methods already exist; this path does not inject raw frames into the wired
-bus.
+Hell's Gate uses the existing Nikobus RF interface to connect the installation to
+HA. Its firmware receives and reproduces compatible Easywave commands; the
+05-300 translates those commands into the wired bus. The HA-side radio runs on
+general-purpose Heltec hardware with open-source firmware, avoiding a dedicated
+Easywave transceiver on that side.
 
-## Two interoperability directions
+## Commands in both directions
 
 | Direction | Path | What it enables |
 |---|---|---|
@@ -24,23 +24,19 @@ flowchart LR
     RF --> Bus[Existing Nikobus outputs / loads]
 ```
 
-“Spoof a Nikobus signal” is informal shorthand here for reproducing a recognized radio
-command at the compatible interface. It does not mean that an arbitrary third-party
-actuator speaks wired Nikobus or that the decoder accepts every transmitter brand. For
-context, Niko's [05-300 product description](https://products.niko.eu/en/article/05-300)
-describes an RF interface that brings wireless transmitters into a Nikobus installation;
-that reference does not identify the exact interface installed in every household.
+The [Niko 05-300](https://products.niko.eu/en/article/05-300) accepts compatible
+wireless commands and passes them into Nikobus. Hell's Gate uses that RF input;
+it does not turn a third-party actuator into a native wired Nikobus device.
 
 An HA action targeting equipment outside Nikobus requires the target's own working HA
 integration, without that Nikobus RF interface or a Nikobus output module. The reverse
 path into an existing Nikobus installation retains its compatible receiver and
 interface.
 
-## The missing information is the load state, not the button identity
+## Output-state feedback
 
-A particular button observation or completed radio command is an event. A momentary wall
-button is an input, not the load state. Those facts do not establish that an output is
-currently energized or that a lamp is lit.
+Receiving a button press or completing a transmission records an event. Neither
+reports whether the output is energized or a lamp is currently lit.
 
 | Information | State classification |
 |---|---|
@@ -56,8 +52,8 @@ wall button, a local override or a power interruption can make an estimate stale
 
 ## Dedicated ON and OFF sides
 
-Yes, this is a documented possibility for **some Nikobus switching modules**. For
-example, the manufacturer's archived [05-000-01/02 switching-unit
+Some Nikobus switching modules support separate ON and OFF inputs. For example,
+the manufacturer's archived [05-000-01/02 switching-unit
 manual](https://old.niko.sk/navody/Nikobus_system_inteligentnej_elektroinstalacie/05-000-02_Spinacia_jednotka.pdf)
 describes M1 with two button points (upper ON, lower OFF), M2 as forced ON and M3 as
 forced OFF. It also supports configurable reaction times for M2/M3. Verify the actual
@@ -76,9 +72,8 @@ recognized identities:
 - Map the second to an explicit **OFF** action.
 
 Repeatedly requesting ON then keeps the same intended state, unlike a toggle that
-changes meaning depending on the unknown initial state. This makes HA automation intent
-much clearer. It **still does not add a feedback channel** or prove the receiver
-accepted each RF command.
+changes meaning depending on the unknown initial state. That gives an HA script a consistent requested action, although confirming the
+result still requires feedback.
 
 Also check reaction time: Hell’s Gate currently sends a short bounded one-shot burst and
 does not implement an arbitrary long hold. A module function requiring a sustained
@@ -104,7 +99,5 @@ independent measurement for the circuit. A power reading can support an inferenc
 known load, but it does not automatically prove the state of every lamp in a group.
 Record the source and uncertainty of that information.
 
-This interoperability preserves useful existing infrastructure while allowing additional
-compatible inputs to be chosen by cost and ergonomics. HA can control targets through
-different integrations without requiring every new device to belong to a complete
-Nikobus cabinet ecosystem.
+This lets you keep the existing Nikobus installation and add compatible controls
+through HA. Other controlled devices use their own integrations.

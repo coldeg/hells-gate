@@ -1,116 +1,97 @@
-# Publication review — 29 October 2026
+# Publication review: 29 October 2026
 
-## Outcome
+## What was checked
 
-The selected community source export is suitable for technical review and manual
-installation by a Home Assistant user familiar with USB firmware flashing and local
-apps. Its software checks and firmware build are verified. It is not yet a one-click
-installer or a separately commissioned fresh household deployment.
+The community export contains the current firmware, HA app and frontend, along
+with documentation, fictional assets and offline tests. The release checks passed,
+including the firmware build. Installation is manual and requires familiarity
+with firmware flashing and local HA apps. A fresh installation in another
+household has not yet been validated.
 
-Only current firmware, the HA app, frontend, documentation, fictional assets and
-offline tests belong in that export. Development captures, iteration history,
-private host helpers and installed household data are outside its selection.
-The publication manifest is the authoritative file list; the development folder
-must not be uploaded wholesale.
+`PUBLICATION_MANIFEST.json` lists the release files and their SHA-256 hashes.
+Private captures, development history, deployment helpers and installed household
+data were excluded from the export.
 
-## Hardware and protocol identification
+## Hardware
 
-The owner confirmed **Niko 05-300**, an Easywave RF interface into an existing
-Nikobus installation. The reproduced layer is the studied legacy unidirectional
-Easywave command family: FSK near 868.3 MHz, Manchester coding and a complete
-observed frame. The 05-300 performs the conversion into wired Nikobus telegrams.
-This does not implement the wired Nikobus protocol or certify every Niko product.
-Exact wall-transmitter product references remain unspecified in the public record.
-See [compatibility](COMPATIBILITY.md) and the manufacturer's
-[05-300 description](https://products.niko.eu/fr-fr/article/05-300).
+The receiving interface is a Niko 05-300, confirmed by the owner. It converts the
+studied legacy Easywave RF commands into Nikobus bus telegrams. The Heltec firmware
+reconstructs those commands using FSK near 868.3 MHz, Manchester coding and the
+complete observed frame. It does not implement the wired Nikobus protocol.
+Exact wall-switch model references still need to be recorded publicly.
+See [compatibility](COMPATIBILITY.md) and
+[Niko's 05-300 description](https://products.niko.eu/fr-fr/article/05-300).
 
-## Blank first installation
+## First installation and updates
 
-- The app's production registry has zero buttons and zero actions.
-- The public firmware has zero native preconfigured RF commands. Observation and
-  learned-command handling remain available.
-- New observations populate the catalogue without automatic RF transmission.
-- Users may observe normal household activity for about 24 hours or press their
-  buttons individually. Waiting cannot reveal a transmitter that never emits.
-- Names, rooms and grouping are optional. Global TX availability, complete-frame
-  evidence, learned storage capacity and airtime limits still apply.
-- Updates preserve existing app/NVS data. Installing a blank source image is not
-  an instruction to erase an already configured board.
+The app registry and native firmware command tables are empty. Reception can
+populate the catalogue without transmitting. Users can press buttons individually
+or leave the gateway receiving for about 24 hours of normal use; only buttons
+that emit can be discovered.
 
-The separate fictional registry is only a test fixture. It is not copied into
-the installed app and does not provision radio commands. Two additional regression
-cases verify empty production initialization and passive discovery with serial and
-MQTT mocked. The fixtures require no setup step from an end user.
+Names, rooms and groups are optional. Sending still requires global TX to be
+enabled, a complete frame and available storage and airtime. Updates preserve
+app data and NVS. The empty source defaults do not require erasing an existing
+installation.
 
-## Evidence and installation usability
+The fictional registry stays under `tests/fixtures/` and is excluded from the
+app's Docker COPY instructions. Two regression cases check empty initialization
+and passive discovery with serial and MQTT mocked.
 
-Validation covers 79 Python test executions, the bridge self-test, frontend bundle
-consistency and JavaScript syntax, two example automations, synthetic figure
-generation, four-language browser checks and the current firmware build. The
-reviewed firmware selects one pinned PlatformIO environment. Historical RF
-branches and private deployment scripts are excluded.
+## Software and installation checks
 
-The instructions explain the USB connection, source build/upload, local HA app,
-MQTT discovery, dashboard resource, entity placeholders and both discovery paths.
-They require no credentials, helpers or directory layout from the original home.
-Browser executable discovery includes an override; only Windows browser execution
-was validated here. ARM64 container execution and a fresh third-party HA
-commissioning were not performed by this review.
+The release validation included 79 passing Python test executions, the bridge
+self-test, JavaScript syntax and source/bundle consistency, two example
+automations, synthetic figures, four-language browser checks and the firmware
+build. The public PlatformIO configuration selects one pinned environment.
 
-The documented app path targets 64-bit Home Assistant OS. Home Assistant Container
-needs a separate host/container adaptation; the older Core/Supervised installation
-methods are no longer supported by HA. See the
-[official comparison](https://www.home-assistant.io/faq/ha-vs-hassio).
+The guide covers USB connection, firmware build/upload, the local HA app, MQTT
+discovery and the manual dashboard resource. It uses the public
+[coldeg/hells-gate repository](https://github.com/coldeg/hells-gate) and needs no
+private deployment helper. Browser checks were run on Windows; other browser
+platforms and a fresh ARM64 container were not tested in this review.
 
-The canonical repository is [coldeg/hells-gate](https://github.com/coldeg/hells-gate).
-The installation guide uses that URL and the reporting policy explains private
-coordination. Fresh commissioning on another supported HA host remains to be
-validated. The app retains its existing compatibility build metadata;
-current [HA documentation](https://contributors.home-assistant.io/apps/reference/configuration/)
-deprecates separate `build.yaml`. A future packaging update should be tested on the
-target Supervisor/container build path before being advertised.
+The app instructions target 64-bit HA OS. Home Assistant Container needs separate
+serial/container setup. HA's older Core/Supervised installation methods are no
+longer supported; see the [installation comparison](https://www.home-assistant.io/faq/ha-vs-hassio).
 
-## Security construction and historical context
+The app retains its existing `build.yaml` for compatibility. The current
+[HA configuration reference](https://contributors.home-assistant.io/apps/reference/configuration/)
+deprecates that separate file. A packaging change should be tested on the target
+Supervisor/container path before release.
 
-The security chapter correctly separates a demonstrated physical replay capability
-from hypothetical abuses, and RF receiver acceptance from HA/MQTT protection.
-It explicitly states that the target needs no HA or Internet connection. It also
-covers consequential HA automations, private RF data, critical devices, finite
-range evidence and the absence of output-state feedback.
+## RF security
 
-The long legitimate history of Easywave does not establish malicious prevalence
-or immunity. The bounded public-source search found no verified malicious campaign
-against this specific 05-300 path. This is not evidence that none has occurred.
-Hypothetical lighting nuisance and garage/access scenarios must remain identified
-as scenarios rather than claimed past incidents or tests.
+Captured commands operated Nikobus circuits in the owner's installation. An
+independent transmitter can exercise the same RF path without HA or Internet
+access in the target home. The [security chapter](SECURITY.md) explains this
+separately from HA/MQTT protection and from hypothetical misuse scenarios.
 
-Earlier interoperability work exists: Marc Selis publicly announced
-[Easywave2MQTT on 28 January 2022](https://community.home-assistant.io/t/new-add-on-to-add-support-for-easywave-devices/385609),
-using an ELDAT RX09; [Nikobus-HA](https://github.com/fdebrus/Nikobus-HA) uses another
-bus-interface path. Hell’s Gate receives and reconstructs the studied RF frames
-directly on generic ESP32/SX1262 hardware, eliminating the dedicated Easywave
-transceiver on the HA side. Its positioning emphasizes this hardware independence
-and intended lower cost. The existing 05-300 remains the Nikobus receiving interface.
+The public-source search for the review found no verified malicious campaign
+against this specific 05-300 path. It was a limited search, so the result cannot
+establish how often abuse occurs. No garage, access-control device or third-party
+installation was tested. The review was not an exhaustive penetration test, and
+adversarial exhaustion of host discovery storage remains untested.
 
-Security limits remain: this is not an exhaustive penetration test; host discovery
-storage has no demonstrated adversarial resource-exhaustion bound; no cryptographic
-anti-replay was added to the 05-300; no garage or third-party premises were tested.
-Source sanitization protects publication privacy and does not repair legacy RF
-acceptance. See [security](SECURITY.md).
+Earlier integration work includes
+[Easywave2MQTT, announced in January 2022](https://community.home-assistant.io/t/new-add-on-to-add-support-for-easywave-devices/385609),
+which uses an ELDAT RX09, and [Nikobus-HA](https://github.com/fdebrus/Nikobus-HA),
+which uses PC-Link. Hell's Gate handles the studied RF commands directly on the
+ESP32/SX1262 board to avoid a dedicated Easywave transceiver on the HA side.
+The existing 05-300 still provides the connection into Nikobus.
 
-## Sanitization and reproducibility
+## Publication privacy
 
-Selection is explicit. Installed RF identities/words and household aliases are
-removed or replaced with fictional fixtures; the production tables are empty.
-Private backups, raw captures, flash images, SSH keys, HA tokens and household
-dashboards are excluded. Known household RF values, credential patterns and local
-workspace paths are checked without printing their values. Manual review also
-covers the selected source and fictional assets.
+Household RF words, identities and labels were removed or replaced with fictional
+fixtures. Raw captures, backups, board/NVS dumps, credentials and household
+dashboards were excluded. Checks searched for known private RF values, credential
+patterns and local paths without printing them. The selected files and fictional
+assets were also reviewed manually.
 
-File hashes in the manifest are public integrity checksums, not secret keys.
-The archive contains only manifest-listed files and the manifest itself. Cache,
-build and test output generated during verification do not become release files.
-Pattern checks complement the selection and review; they do not prove the absence
-of every possible unknown secret. The technical review involved no RF emission,
-hardware upload or HA connection. Source publication is a separate step following
-that review.
+Those checks reduce the risk of exposing private data; pattern matching cannot
+prove that every possible secret is absent. The archive contains only the
+manifest-listed files and the manifest itself. Generated caches and build logs
+stay outside it.
+
+The review used no RF transmission, hardware upload or HA connection. Publishing
+the source does not change the legacy receiver's acceptance of replayed commands.

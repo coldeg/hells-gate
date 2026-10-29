@@ -1,8 +1,8 @@
 # Local Nikobus/Easywave pipeline architecture
 
-Hell’s Gate consists of a radio endpoint, a local MQTT bridge, a presentation model and
-a Home Assistant card. A received signal, a human name, a UI group and an actual
-physical effect represent separate facts.
+Hell's Gate connects the Heltec radio to Home Assistant through a local MQTT
+bridge. The bridge keeps received frames, optional labels and display groups
+separate from transmission results. It does not infer the state of a physical load.
 
 ![Local pipeline overview](assets/pipeline-overview.png)
 
@@ -83,7 +83,7 @@ sequenceDiagram
     Card-->>User: Command sent / precise failure
 ```
 
-The browser request ID prevents another user's result from completing the current click.
+The browser request ID matches a result to the click that requested it.
 A separate serial nonce correlates the one-shot firmware exchange. Neither ID
 establishes that a lamp changed state. An unexpected serial RX/status line is still
 processed while the bridge waits for a matching acknowledgement.
@@ -114,14 +114,9 @@ stateDiagram-v2
     RadioResult --> Recognized: capability retained
 ```
 
-This state diagram does not contain an inferred on/off state for a lamp. A radio result
-is an observation about transmission; a human observation of the load is separate
-evidence.
-
-This feedback gap remains the central integration limitation. Virtual transmitter
-identities, explicit ON/OFF commands and HA scenes do not remove it. That next direction
-is described in [ROADMAP.md](ROADMAP.md), with requested, estimated and independently
-confirmed state kept separate.
+The diagram stops at the transmission result. Confirming a lamp state requires
+separate feedback or observation, including for ON/OFF commands and scenes. See
+[the roadmap](ROADMAP.md) for planned work and the feedback limitation.
 
 ## Persistence
 
@@ -134,10 +129,8 @@ The observation cache is separate from NVS: after a reboot, an old complete disc
 that was never installed may require a new physical press before the firmware accepts
 installation. Installed matching entries are idempotent.
 
-Further reading: [message contracts](PROTOCOL.md), [modulation](MODULATION.md),
-[installation](INSTALLATION.md), [validation and limits](TESTING_AND_LIMITS.md), and [RF
-trust boundaries and replay](SECURITY.md). Bridge-side request correlation and TX limits
-do not authenticate the legacy over-the-air command. An independent radio can bypass the
-HA/MQTT/serial path. The reverse path from third-party HA inputs, explicit ON/OFF
-commands and actual state feedback are discussed in [Nikobus
-interoperability](NIKOBUS_INTEROPERABILITY.md).
+See the [message reference](PROTOCOL.md), [modulation notes](MODULATION.md),
+[installation guide](INSTALLATION.md) and [test results](TESTING_AND_LIMITS.md).
+The [security chapter](SECURITY.md) explains why request matching and TX limits
+do not authenticate legacy RF commands. [Nikobus interoperability](NIKOBUS_INTEROPERABILITY.md)
+covers third-party HA inputs, ON/OFF commands and output feedback.

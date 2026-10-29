@@ -1,8 +1,8 @@
 # Contributing to Hell’s Gate
 
-Contributions are welcome in decoding, receiver compatibility, the UI, translations,
-tests and documentation. The evidence behind a change should be reviewable, especially
-when a software success indicator and a physical result can differ.
+Useful contributions include decoder work, receiver tests, UI changes and translations.
+For an RF change, include the observations behind it: a passing software check and
+a receiver acting on a command answer different questions.
 
 ## Source map
 
@@ -37,16 +37,14 @@ python tools/check_hells_gate_card.py
 python tools/check_i18n.py
 ```
 
-Those browser tests use fake HA service calls. `check_i18n.py` also captures the
-fictional public screenshots. The helper discovers common browser paths and supports an explicit
-`HELLS_GATE_BROWSER` executable path; Windows was tested in this review. The standalone
-`frontend/demo.html` itself works without HA or a broker in a modern browser on other
-systems.
+Browser checks use fictional data and fake HA service calls; no HA token is needed.
+`check_i18n.py` also captures the public screenshots. The helper finds common
+Chrome/Edge paths, or you can set `HELLS_GATE_BROWSER` to the browser executable.
+These checks were run on Windows. The standalone `frontend/demo.html` can be opened
+in a modern browser without HA or a broker.
 
-Browser checks use only fictional data and mocked actions. Production starts empty;
-`tests/fixtures/registry.synthetic.json` supports tests without provisioning the app
-or firmware. Set `HELLS_GATE_BROWSER` if browser auto-discovery fails. No HA token or
-private host helper is required for the published checks.
+`tests/fixtures/registry.synthetic.json` supplies test data without populating the
+production app or firmware. Production starts empty.
 
 For readable JavaScript formatting optionally install `jsbeautifier==1.15.4` and run
 `python tools/format_frontend.py`, then rebuild the bundle. The formatter is a
@@ -92,10 +90,9 @@ provide a deliberately sanitized fixture when possible.
 - Independent captured-tail and waveform fixtures suitable for public redistribution.
 - More browser/platform coverage and native HA accessibility checks.
 - More language packs and review of the existing translations.
-- A self-contained community installation/release process replacing private workspace
-  deployment assumptions, with configurable deployment paths and example registries.
+- A simpler community installation/release process, with configurable deployment
+  paths and example registries.
 - A state model only where a real receiver feedback channel exists.
 
 Original code and documentation use the [MIT license](LICENSE). External dependencies
-retain their own licenses. A contribution should make its provenance and any third-party
-material clear.
+retain their own licenses. Identify the source and license of any third-party material in a contribution.

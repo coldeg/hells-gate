@@ -1,84 +1,81 @@
-# Hell’s Gate — Nikobus & Easywave integration for Home Assistant
+# Hell's Gate: Nikobus and Easywave integration for Home Assistant
 
-**Modernize an existing Nikobus installation and reuse compatible Easywave wall switches
-with local Home Assistant automations.** The confirmed target is the Niko
-05-300 Easywave RF interface connected to an existing Nikobus installation. Hell’s Gate combines a Heltec WiFi LoRa 32 V3
-running FSK, a local Python/MQTT bridge and an HA dashboard card. Recognized buttons are
-directly usable; names and room assignments are optional.
+Hell's Gate connects compatible Easywave wall switches and an existing Nikobus
+installation to Home Assistant. It uses a Heltec WiFi LoRa 32 V3 board
+(ESP32-S3 / SX1262), a local Python/MQTT bridge and an HA dashboard card.
+The radio runs in 868 MHz FSK mode.
 
-**Direct Easywave radio on general-purpose ESP32/SX1262 hardware.** Hell’s Gate
-receives, decodes and reconstructs the studied RF frames in its own firmware,
-without an ELDAT RX09/RX11 or another dedicated Easywave transceiver on the HA side.
-The Heltec board provides the ESP32-S3 and the 868 MHz FSK radio in one device.
+The open-source firmware receives, decodes and reconstructs the studied Easywave
+frames directly on this general-purpose board. No ELDAT RX09/RX11 or other dedicated Easywave transceiver
+is needed on the HA side. The aim is to use readily available hardware and reduce
+the cost of connecting an older installation to HA.
 
-This approach is designed to reduce hardware cost and dependence on dedicated
-vendor interfaces. For an existing Nikobus installation, its 05-300 receiving
-interface remains the link into the wired bus. Easywave button events used only
-for third-party HA actions do not require that Nikobus interface.
+For commands into Nikobus, the existing Niko 05-300 RF interface remains the link
+to the wired bus. You can also use a compatible button solely as an input for an
+HA automation, without a Nikobus installation or a 05-300.
 
-**Security: captured button commands were retransmitted and operated Nikobus circuits on
-the owner's installation.** A third party with compatible radio equipment can
-potentially reuse learned commands; the targeted house needs no Home Assistant or
-Internet connection. Repeated unauthorized operation can include disturbing bedroom
-lighting at night. HA authentication and Hell’s Gate's TX limits do not secure that
-independent radio path. Read the [RF replay and security chapter](docs/SECURITY.md)
-before using or extending it.
-
-![Hell’s Gate pipeline](docs/assets/pipeline-overview.png)
+![Hell's Gate pipeline](docs/assets/pipeline-overview.png)
 
 ## Why I built it
 
-I wanted to keep useful existing switches, understand their radio traffic and control
-equipment through HA without a cloud-dependent gateway. I also wanted an interface where
-an optional name or room assignment does not become a barrier between a recognized
-button and its action.
+I wanted to keep my existing switches and wiring, understand the radio traffic
+and use the buttons with local Home Assistant automations. I also wanted to be
+able to use a recognized button straight away, with names and room assignments
+added later if useful.
 
-**The principal integration limitation remains output-state feedback:** this
-Easywave/Nikobus radio path does not natively report the real output state to HA.
-Requested or estimated state stays distinct from independently confirmed state,
-including for scenes.
+On my installation, about 99% of button commands respond as expected. That is my
+experience with this hardware, not a compatibility figure for other receivers.
+The radio path has no output-state feedback: HA knows that it requested a command,
+but cannot tell from that transmission alone whether a lamp actually came on.
 
-A received physical-button event can trigger a general HA automation, including
-equipment outside Easywave/Nikobus. That path requires a compatible input path, HA and
-the target's integration, without a full Nikobus cabinet installation. Hell’s Gate is
-not a universal decoder for every manufacturer's radio protocol.
+## Using the buttons
 
-## Reuse legacy switches in a modern smart home
+The gateway discovers compatible button traffic and keeps a catalogue of received
+identities. Recognized commands can be used directly from the dashboard. Names,
+rooms and groups are optional.
 
-- Discover and inspect compatible received button identities and complete frames.
-- Press a recognized command directly, with optional names, rooms and grouping.
-- Use an unassigned physical button as an HA automation input: shopping-list items,
-  thermostat up/down, scenes, blinds, media controls, reminders and other actions.
-- Keep processing local, with bounded commands and explicit radio-result feedback.
-- Follow each HA user's language and regional preferences independently: English,
-  French, Dutch and German are bundled, with English fallback for other languages.
-- Study and improve the protocol using offline encoders, synthetic plots and tests.
+A physical button can also trigger an HA automation for equipment outside
+Easywave/Nikobus, through that equipment's own integration. Examples include
+adjusting a thermostat or adding detergent to a shopping list. See the
+[use cases and complete automation examples](docs/USE_CASES.md).
 
-![Fictional English desktop preview](docs/assets/ui-controls-desktop.png)
+The card follows each HA user's language and regional settings. English, French,
+Dutch and German are included, with English fallback for other languages.
 
-Public screenshots use fictional devices. Open
-[`frontend/demo.html`](frontend/demo.html) locally for an interactive preview; its
-commands and reception button are simulated in memory.
+![Dashboard preview with fictional devices](docs/assets/ui-controls-desktop.png)
 
-## Read the project in this order
+The screenshots use fictional devices. Open [frontend/demo.html](frontend/demo.html)
+locally to try the interface; its reception and commands are simulated in memory.
 
-| Question | Guide |
-|---|---|
-| Which hardware and protocol were studied? | [Compatibility and verified scope](docs/COMPATIBILITY.md) |
-| What is useful beyond the original installation? | [Use cases and HA automation examples](docs/USE_CASES.md) |
-| How to bridge existing Nikobus and third-party equipment in both directions? | [Interoperability, ON/OFF and state feedback](docs/NIKOBUS_INTEROPERABILITY.md) |
-| What changed, and why? | [Project history and decisions](docs/PROJECT_HISTORY.md) |
-| Was the selected export reviewed? | [Publication review and remaining limits](docs/PUBLICATION_REVIEW.md) |
-| How to install it in another household? | [HA installation guide](docs/INSTALLATION.md) |
-| How do the components fit together? | [Architecture and sequence diagrams](docs/ARCHITECTURE.md) |
-| What is actually transmitted? | [Manchester, FSK, captured tail and continuous burst](docs/MODULATION.md) |
-| What are the MQTT/serial contracts? | [Protocol reference](docs/PROTOCOL.md) |
-| What is proven, and what remains open? | [Testing and limitations](docs/TESTING_AND_LIMITS.md) |
-| How to improve or translate it? | [Contribution guide](CONTRIBUTING.md) |
-| What research comes next? | [Virtual transmitters, scene control and feedback limits](docs/ROADMAP.md) |
-| What still needs review before a public source release? | [Publication boundaries](docs/PUBLICATION.md) |
-| What can an unauthorized nearby transmitter do? | [Replay, nuisance, critical devices and mitigations](docs/SECURITY.md) |
-| How should the project be described and found? | [Keywords, GitHub topics and related work](docs/DISCOVERABILITY.md) |
+## Installation and documentation
+
+Start with the [installation guide](docs/INSTALLATION.md) and
+[compatibility notes](docs/COMPATIBILITY.md). Installation is manual and intended
+for users comfortable with firmware builds, local HA apps and MQTT.
+
+For day-to-day use, see [the button guide](SELF_SERVICE_COMMANDES.md),
+[Nikobus interoperability and ON/OFF commands](docs/NIKOBUS_INTEROPERABILITY.md)
+and [testing and limitations](docs/TESTING_AND_LIMITS.md).
+
+For development, read the [architecture](docs/ARCHITECTURE.md),
+[MQTT/serial reference](docs/PROTOCOL.md), [modulation notes](docs/MODULATION.md)
+and [contribution guide](CONTRIBUTING.md). The [project history](docs/PROJECT_HISTORY.md)
+explains earlier decisions; the [roadmap](docs/ROADMAP.md) covers planned virtual
+transmitters and other work.
+
+The [publication review](docs/PUBLICATION_REVIEW.md),
+[source export scope](docs/PUBLICATION.md) and
+[project description](docs/DISCOVERABILITY.md) document what is included in this
+repository and how it relates to earlier projects.
+
+## RF security
+
+Captured button commands have been retransmitted and operated Nikobus circuits
+on my installation. Someone with compatible radio equipment could reuse learned
+commands against a receiver that accepts them, even if the home has no HA or
+Internet connection. Repeated lighting operation is one possible consequence.
+HA authentication and this gateway's transmission limits do not protect that
+independent RF path. Read the [RF security notes](docs/SECURITY.md) before use.
 
 ## A quick offline development loop
 
@@ -92,41 +89,45 @@ node --check frontend/hells-gate-card.js
 python tools/generate_community_figures.py
 ```
 
-Edit `frontend/src/card.js`, `card.css`, `i18n.js` and the JSON language packs, then
-build the single local resource. Build the current firmware explicitly with `python -m
-platformio run -e heltec_v87`. The public PlatformIO configuration selects this single current environment by default.
+Edit `frontend/src/card.js`, `card.css`, `i18n.js` and the JSON language packs,
+then rebuild the single card resource. To build the firmware, run
+`python -m platformio run -e heltec_v87`. This is the only firmware environment
+in the public configuration and is selected by default.
 
 ![Manchester and four-sample transport model](docs/assets/manchester-transport.png)
 
 ## Current scope
 
-The current integration combines V8.7 learned-command firmware, the 0.4.0 bridge and the
-0.4.1 localized frontend. Validation includes 79 passing Python cases and separate
-browser/locale checks. Operation was confirmed on several installed circuits, with one
-load remaining unconfirmed; receiver compatibility is not universal.
+The release contains V8.7 learned-command firmware, bridge 0.4.0 and card 0.4.1.
+The release checks included 79 passing Python tests, browser/locale checks and
+a firmware build. These software checks do not establish receiver compatibility
+in another installation.
 
-Actual complete-frame evidence is required for a newly learned RF command. The firmware
-currently has 32 learned-frame slots. A sent command does not establish a lamp state.
-HA-driven actions require HA, MQTT and the target integration to be available; optional
-online ordering flows also depend on their external service.
+The firmware stores up to 32 learned frames. Learning a new command requires a
+complete received frame, including its final bit. HA automations also depend on
+MQTT, HA and the target integration being available; an optional online ordering
+workflow would depend on its external service.
 
-The modulation figures are synthetic illustrations, not antenna measurements.
-This community source export contains only the current firmware, local bridge,
-frontend, documentation and offline checks. Production command tables are empty;
-test identities are fictional and stored separately under `tests/fixtures/`.
-See [publication scope](docs/PUBLICATION.md) and the file manifest.
+Production command tables and the app registry start empty. Fictional test
+identities are kept separately in `tests/fixtures/`. Modulation figures are
+synthetic illustrations generated from source parameters, not antenna measurements.
 
 ## Related Nikobus projects
 
-[Easywave2MQTT](https://github.com/marcselis/Easywave2MQTT) integrates a dedicated
-ELDAT RX09 through its serial interface. [Nikobus-HA](https://github.com/fdebrus/Nikobus-HA)
-documents a PC-Link serial/TCP bus path. Hell’s Gate implements the studied RF
-reception and frame reconstruction directly on a general-purpose SX1262 radio,
-providing a different hardware approach to local HA interoperability.
+[Easywave2MQTT](https://github.com/marcselis/Easywave2MQTT) connects HA to a
+dedicated ELDAT RX09 Easywave transceiver. Hell's Gate puts reception and frame
+reconstruction for the studied commands into open-source firmware on the Heltec.
+That gives users an option based on a general-purpose radio board, with lower
+hardware cost as a goal. Both approaches still depend on compatible receiving
+equipment for the commands they send.
+
+[Nikobus-HA](https://github.com/fdebrus/Nikobus-HA) takes another route, connecting
+to the wired bus through PC-Link. The RF approach here keeps the existing 05-300
+as its entry point into Nikobus.
 
 ## License and acknowledgements
 
-Original project code and documentation use the [MIT license](LICENSE). External
-components retain their own licenses and attribution, described in
-[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). This independent project is not
-endorsed by Niko, Easywave, Heltec or Home Assistant.
+Original code and documentation use the [MIT license](LICENSE). Dependencies
+retain their own licenses; see [third-party notices](THIRD_PARTY_NOTICES.md).
+This is an independent project, without endorsement from Niko, Easywave, Heltec
+or Home Assistant.

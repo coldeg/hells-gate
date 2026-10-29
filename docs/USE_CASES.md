@@ -1,16 +1,15 @@
 # Reusing wireless wall buttons for Home Assistant automations
 
-A compatible radio button does not need an Easywave receiver or Nikobus output
-assignment to trigger a Home Assistant automation. Its physical receiver assignment can
-remain empty; the gateway receives its event and HA decides what to do. A name and room
-make the configuration easier to maintain, but the trigger uses the stable received
-identity.
+You can use a compatible Easywave button as an HA input without pairing it with
+an Easywave actuator or assigning it to a Nikobus output. The Heltec receives the
+press and publishes an event; HA runs the configured action. The trigger uses the
+received identity, so names and rooms are optional.
 
 Received RF identities are observable and potentially replayable. Read the [security
 chapter](SECURITY.md) before assigning consequential actions. A button event alone is
 not proof that an authorized person requested the action.
 
-This opens two independent paths:
+The two paths are:
 
 ```mermaid
 flowchart TD
@@ -24,20 +23,16 @@ flowchart TD
     TX --> Receiver[Existing Easywave receiver / Nikobus radio interface]
 ```
 
-The first path requires the compatible transmitter, the receiver/gateway and HA's
-integration with the target. It does **not** require a complete Nikobus distribution
-cabinet, a Nikobus output module or an Easywave actuator for that target. The target can
-use another locally supported protocol; HA makes the connection between the input event
-and its action.
+For the automation path, you need a compatible button, the gateway, HA and the
+target's integration. No Nikobus cabinet or Easywave actuator is needed. The
+controlled device can use any protocol supported by its own HA integration.
 
 ## The laundry-supplies example
 
-Dedicate button 1 to laundry detergent and button 2 to fabric softener. In the
-immediately reproducible local version below, the requested product is added to an HA
-shopping list. A separate configured ordering workflow can use the same intent; an
-actual online purchase depends on the merchant/API and its account, payment and
-confirmation behavior. Hell’s Gate itself does not contain a retailer connector or place
-orders.
+Use button 1 for laundry detergent and button 2 for fabric softener. The example
+adds the product to an HA shopping list. An ordering workflow would need a separate
+retailer integration, account and payment/confirmation setup; Hell's Gate itself
+has no retailer connector and places no orders.
 
 Add HA's Shopping List or Local to-do integration, create an automation and replace the
 two received IDs and to-do entity below. These are placeholders because IDs and entity
@@ -77,18 +72,17 @@ still contain repeated products after separate intentional presses.
 The example uses the documented [`todo.add_item`
 action](https://www.home-assistant.io/integrations/todo/) with an entity supplied by a
 [to-do/shopping-list
-integration](https://www.home-assistant.io/integrations/shopping_list/). The example
-adds an item; it does not silently buy a product.
+integration](https://www.home-assistant.io/integrations/shopping_list/). The action adds an item to the list.
 
-## A two-way thermostat control, without opening HA
+## Adjusting a thermostat with two buttons
 
 Use one side of a two-way button to increase a setpoint and the other side to decrease
 it. Pressing the physical switch triggers HA in the background, without opening a phone,
 browser or HA dashboard for each change.
 
-HA, MQTT and the target integration must still be running. This is not a direct pairing
-that will continue through a HA outage. For a local target integration the interaction
-does not require Internet access.
+HA, MQTT and the thermostat integration must be running. With a local target
+integration, Internet access is unnecessary. The automation stops working during
+an HA outage.
 
 ```yaml
 alias: "Thermostat adjustment from a two-way wall button"
@@ -135,7 +129,7 @@ actual entity, supported features and setpoint behavior depend on the integratio
 examples are offline-checked configuration examples, not automations installed or
 physically tested in another household.
 
-## Other applications — a non-exhaustive list
+## More button uses
 
 | Input | HA action | Target-side requirements |
 |---|---|---|
@@ -163,24 +157,16 @@ native HA MQTT-triggered automations; the Hell’s Gate card does not supply a d
 editor for each action. The card focuses on discovery, naming, grouping and direct
 reproduction of recognized RF commands.
 
-## Why this can make hardware choice more flexible
+## Choosing input and output hardware
 
-Input hardware and controlled equipment can be chosen independently. Compare compatible
-buttons by price, feel, appearance, power source and availability while HA controls
-loads from other supported manufacturers. Consider total setup cost: button, gateway,
-actuator and maintenance. A complete cabinet ecosystem from one brand is not required
-for this HA event-to-action path.
+Choose a compatible input button by its feel, appearance, power source, price and
+availability. HA can then control equipment from another manufacturer through
+its own integration. Include the gateway and actuator when comparing total costs.
 
-Hell’s Gate is currently a gateway for the **observed Easywave FSK protocol on the
-supported radio hardware**. It is not a universal receiver for every brand, 868 MHz
-device, Zigbee, Z-Wave, BLE or Matter button. Matching a frequency or a product label
-does not establish compatibility. Another protocol needs its own working decoder/radio
-path or an existing HA integration; a device from another manufacturer needs an actual
-compatibility test.
-
-Once a device's press reaches HA as a reliable event, the same action patterns can apply
-across different input technologies. They do not all need to emit Easywave or rely on
-Nikobus cabinet equipment.
+Hell's Gate decodes the studied Easywave FSK family. A matching frequency or
+brand name is insufficient to establish compatibility. Zigbee, Z-Wave, BLE, Matter
+and other input protocols need their own receiver/integration. Once their button
+events reach HA, the same automation patterns can be used.
 
 The opposite direction—third-party HA inputs reproducing a recognized command toward an
 existing Nikobus RF interface—and distinct ON/OFF buttons are described in

@@ -2,64 +2,55 @@
 
 ## The problem I wanted to solve
 
-I wanted to keep an existing Easywave/Nikobus installation usable through local Home
-Assistant. I did not want a cloud account, a replacement for every wall switch, or an
-interface that confused naming a button with making it usable.
+I wanted to keep my Easywave/Nikobus switches and use them with local Home
+Assistant automations. Naming a button should help me find it, without becoming
+a separate step needed to make it work.
 
-The bridge uses a Heltec WiFi LoRa 32 V3 board with the SX1262 in FSK mode; the board's
-LoRa branding does not make the Easywave traffic LoRa. The project reconstructs the
-radio behavior studied for this installation rather than every Niko/Easywave product.
+The radio is a Heltec WiFi LoRa 32 V3 with its SX1262 running in FSK mode.
+The work covers the Easywave traffic used by this installation.
 
-## The progression of the work
+## How the work progressed
 
-| Stage | Result | Purpose |
-|---|---|---|
-| Reception and signal exploration | Compared RSSI activity, packet candidates, Manchester levels and recurrence. | Evidence was needed about framing and timing before attempting reconstruction. |
-| Integrity and identity | Reconstructed a 32-bit word and two observed integrity classes, then exposed serial/key/side identities. | Stable identities and rejection of unrelated structures. |
-| Passive discovery | Retained recurring candidates, first/last observations and counts. | Discover switches without continuously printing raw radio traffic. |
-| Initial MQTT gateway | Added local serial ownership, MQTT discovery and a limited set of known commands. | A reliable path between the radio endpoint and HA. |
-| Transport experiments | Examined truncated frames, partial hardware synchronization and polarity variants. | A software TX completion alone did not explain physical receiver behavior. |
-| Full byte-aligned transport | Retained all 66 Manchester chips using four transport bits per chip. | Send complete frames through a byte-oriented packet API. |
-| Continuous burst | Encoded three repetitions and held levels into one 111-byte radio call. | Preserve the burst envelope rather than introduce radio-off gaps between separate calls. |
-| Learned commands, V8.7 | Captured the final data bit and stored exact learned frames. | The final bit must come from evidence, not a guess based on the 32-bit prefix. |
-| Dynamic catalogue and direct controls | Made recognized buttons usable independently of optional names and groups. | A button called “receive only” after attribution was an unnecessary usability dead end. |
-| Locale and community documentation | Separated language packs, inherited HA profile preferences and added reproducible figures. | Help another household or contributor understand and extend the work without private deployment knowledge. |
+Reception came first: RSSI activity, possible packets, Manchester levels and
+recurring patterns. That led to the 32-bit identity/integrity model and two
+observed integrity classes. Passive discovery then kept recurring candidates,
+timestamps and counts without continuously printing raw traffic.
+
+The first MQTT gateway connected the radio to HA and exposed a small set of known
+commands. Transmission needed more work. Early experiments tried truncated
+frames, partial hardware synchronization and polarity variants. A successful
+radio API return did not explain what the receiver actually accepted.
+
+The byte-aligned transport kept all 66 Manchester chips by representing each chip
+with four transport bits. Three frames and their held levels were then combined
+into one 111-byte transmit call, avoiding radio-off gaps between separate calls.
+
+V8.7 added the captured final data bit to learned commands. The 32-bit prefix
+alone was insufficient: learning needed the actual received tail.
+
+Later work added a dynamic catalogue, direct unnamed-button controls and language
+packs following each HA user's profile. The public documentation and synthetic
+figures were added so another user could build and inspect the project.
 
 ## Decisions I changed
 
-I initially kept naming, activation and physical confirmation as separate user steps.
-That made newly attributed buttons look incomplete even when their command could already
-be reproduced. I changed the rule to **recognized = actionable**. An incomplete
-historical observation remains distinct from a complete frame, because a missing bit
-cannot be repaired by a different label.
+I initially separated naming, activation and physical confirmation in the UI.
+That made a button look unfinished even when its command was ready to send.
+The current rule is simple: a recognized button is usable. An incomplete
+observation still needs another reception; a name cannot supply a missing bit.
 
-I also stopped treating a successful radio API return as proof of physical success. The
-UI exposes “command sent”; physical receiver behavior requires separate validation.
-Several installed circuits were confirmed, with one load remaining unconfirmed. That
-result does not establish compatibility with every receiver family.
+I also changed the feedback to say "command sent" instead of implying a confirmed
+physical result. On my installation, about 99% of button commands respond as
+expected. The radio still provides no feedback confirming the output state.
 
-Earlier experiments remain in the development workspace for research traceability. The
-current learned-command build explicitly selects `heltec_v87`; the old PlatformIO
-default is historical.
+Earlier experiments remain in the private development workspace. The public
+PlatformIO configuration contains the current `heltec_v87` environment.
 
-## What the current project is useful for
+## Remaining work
 
-The gateway observes compatible switch traffic, identifies recurring buttons, stores
-optional names and existing HA rooms, and sends explicit one-shot commands from a local
-dashboard. Reception and radio results remain separate from the real state of the
-controlled load.
+The offline encoders and synthetic plots help compare bits, timing and transport
+payloads. They do not measure antenna power or spectrum. Receiver compatibility
+outside the original installation and regulatory compliance need their own checks.
 
-Research tools include offline encoders, source-derived timing checks, a documented
-serial/MQTT boundary and synthetic plots. Those let a contributor discuss a bit, chip,
-byte, burst, nonce or timestamp precisely instead of changing multiple layers at once
-and judging success from a green button.
-
-## Limits of these results
-
-The work has not established universal Easywave compatibility, a calibrated antenna
-power/spectrum, a regulatory certification, or an end-to-end guarantee for every load.
-The model spectrum in the documentation is synthetic. The publication work does not add
-a new RF test or flash the installed gateway.
-
-Remaining questions are documented in [testing and limits](TESTING_AND_LIMITS.md) and
-the concrete contribution paths in [CONTRIBUTING.md](../CONTRIBUTING.md).
+See [testing and limits](TESTING_AND_LIMITS.md) and
+[contribution areas](../CONTRIBUTING.md) for the remaining technical work.

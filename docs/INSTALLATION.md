@@ -1,9 +1,9 @@
 # Installing Hell’s Gate in Home Assistant
 
-This guide covers a **local installation from source** using the
-[Hell’s Gate repository](https://github.com/coldeg/hells-gate). Serial ports and entity
-IDs below are installation-specific placeholders. Install the HA app locally and add
-the card resource manually; this repository is not a HACS package.
+Build the firmware from the [public source](https://github.com/coldeg/hells-gate),
+install the HA app locally and add the dashboard resource manually. This release
+is not a HACS package. Replace the example serial ports and entity IDs with those
+from your installation.
 
 ## 1. Requirements
 
@@ -56,11 +56,10 @@ Install PlatformIO in that source directory:
 python -m pip install platformio
 ```
 
-The production registry and firmware's native command table are already empty.
-Use this reviewed source export. The fictional registry under `tests/fixtures/`
-belongs only to offline tests; never copy it into the app. Existing installation
-data and NVS are preserved during updates, so flashing is not a factory reset.
-The first-install workflow assumes a new app data directory and a fresh board.
+The production registry and native firmware command table start empty. Test data
+in `tests/fixtures/` stays separate; do not copy it into the app. These first-install
+instructions assume a fresh board and app data directory. Updates preserve
+existing app data and NVS, so a firmware flash is not a factory reset.
 
 ## 3. Build and install the firmware
 
@@ -68,10 +67,9 @@ The first-install workflow assumes a new app data directory and a fresh board.
 python -m platformio run -e heltec_v87
 ```
 
-The only published firmware environment is `heltec_v87`, selected by default. Keep
-the existing V3 USB/UART behavior; changing USB CDC flags can make the expected serial
-endpoint disappear. The public build pins the validated Espressif platform 7.0.1, RadioLib 7.7.1
-and U8g2 2.36.18. Historical compile-time branches have been removed from this export.
+The public configuration contains only `heltec_v87`, selected by default. It pins
+Espressif platform 7.0.1, RadioLib 7.7.1 and U8g2 2.36.18. Keep the existing V3
+USB/UART settings: changing USB CDC flags can make the expected serial port disappear.
 
 After backing up the board and identifying its actual upload port, use the standard
 PlatformIO upload operation on the development machine:
@@ -84,8 +82,6 @@ Verify the boot identity `NIKOBUS_HELTEC_EASYWAVE_GATEWAY_V8_7_LEARNED`,
 `LEARNED_TX_SELF_TEST_OK` and `GATEWAY_BOOT_READY true` at 115200 baud. Then close the
 monitor before starting the HA app: two programs must not own the same serial port. A
 successful upload verifies neither reception nor physical receiver behavior.
-
-Use the standard local PlatformIO commands above; no private household deployment helper is required.
 
 ## 4. Install the local HA app
 
@@ -159,13 +155,13 @@ Choose either discovery workflow while global TX remains disabled:
 - **Passive discovery:** leave the gateway and HA app receiving for about 24 hours
   while using the house normally. Only transmitters that actually emit during that
   period can appear; a silent button cannot be discovered by waiting. This is an
-  observation period, not a background RF scan that polls or activates equipment.
+  observation period; the gateway does not poll or activate equipment.
 - **Guided discovery:** press physical buttons one at a time. Use **Add** to see
   receptions during the session, or find them under **My buttons** among unnamed
   entries. Name a button, choose a room and optionally group it for convenience.
 
-Discovery never transmits automatically. A complete recognized frame is directly
-actionable when global TX is enabled; naming and adding metadata are optional.
+Discovery does not transmit. Once a complete frame is recognized, its command is
+available when global TX is enabled. Names and other metadata are optional.
 An incomplete candidate offers **Recognize** and needs another physical press.
 Nearby compatible transmitters may also appear: a received signal does not prove
 ownership. Associate entries by controlled presses on your own equipment.
@@ -177,8 +173,7 @@ slots; the observation catalogue and those persistent slots are different stores
 When ready to observe the load, enable the app's global `tx_enabled` option and restart
 the app. Make the first radio test manually from the card while watching the intended
 receiver. **Command sent** reports transmission; check the physical effect separately.
-No per-button activation or confirmation step is required to make an otherwise
-recognized button usable.
+Recognized buttons need no separate per-button activation step.
 
 ## 7. Language and regional formatting
 

@@ -1,6 +1,7 @@
-# Validation evidence and known limitations
+# Test results and limitations
 
-Different evidence levels answer different questions.
+The checks below cover software behavior, RF encoding and observations on the
+original installation. Each supports a different conclusion.
 
 | Evidence | Supported conclusion | Unsupported conclusion |
 |---|---|---|
@@ -13,7 +14,7 @@ Different evidence levels answer different questions.
 
 ## Software checks for the current work
 
-Validation includes 79 passing Python test cases for naming, catalogue grouping, atomic
+The release validation included 79 passing Python test cases for naming, catalogue grouping, atomic
 requests, direct unnamed commands, persistence, serial correlation and rejection paths.
 JavaScript syntax and source/bundle consistency were also checked.
 
@@ -38,7 +39,7 @@ The explanatory Python comments were checked for an unchanged AST, and firmware 
 for unchanged executable tokens. The UI/localization/documentation work involved no
 firmware flash or new RF test.
 
-## Explicit limitations
+## Known limitations
 
 1. **Incomplete old observations.** The actual tail is required before reproducing a new
    learned frame. A new physical press can complete recognition.
@@ -49,8 +50,9 @@ firmware flash or new RF test.
    UI does not implement deletion/compaction of those slots.
 4. **Failure detail.** The firmware does not reliably distinguish every full-storage,
    stale-cache or mismatching-tail installation failure in its reply.
-5. **Physical compatibility.** Several existing circuits were confirmed, with one load
-   remaining unresolved. This does not certify all Easywave/Nikobus devices.
+5. **Physical compatibility.** The owner reports that about 99% of button commands
+   respond as expected in the original installation. Other receiver models and
+   installations still need their own compatibility checks.
 6. **State feedback.** The integration exposes momentary commands and radio results,
    without inferring lamp on/off states.
 7. **Airtime.** The software reserves 110,917 µs per burst, a minimum one-second
@@ -78,6 +80,6 @@ and fictional screenshots live under `docs/assets/` and can be regenerated with 
 commands in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 Regenerate plots from their generator and parameter manifest to keep timing labels
-consistent. A hardware-related change needs a source diff, an offline reference check
-and a separately observed manual test with one changed variable. Keep software results
-and physical observations distinguishable.
+consistent. For a hardware change, include the source diff, an offline reference comparison
+and a manual test with one changed variable. Record the software result and the
+physical observation separately.
